@@ -1,0 +1,18 @@
+GET http://localhost:3001/api/blogs
+
+###
+
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImEiLCJpZCI6IjY4MWQzNDNjOTA2ZDBjMzlkNTAzMWRkOSIsImlhdCI6MTc0Njg3NTkwOCwiZXhwIjoxNzQ2ODc5NTA4fQ.m_-BSWN9GcRqvd2G5UCDyMs77uDHcN3UrqhirfaUzak
+
+{
+  "title": "abcdef",
+  "author": "abcdef",
+  "url": "http://abcdef.com"
+}
+
+###
+
+DELETE http://localhost:3001/api/blogs/681d2eeaf9c35deb64d5e8d8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImEiLCJpZCI6IjY4MWQzNDNjOTA2ZDBjMzlkNTAzMWRkOSIsImlhdCI6MTc0Njg3NTkwOCwiZXhwIjoxNzQ2ODc5NTA4fQ.m_-BSWN9GcRqvd2G5UCDyMs77uDHcN3UrqhirfaUzak
