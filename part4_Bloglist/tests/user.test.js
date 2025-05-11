@@ -10,6 +10,7 @@ const api = supertest(app)
 
 let token
 before(async () => {
+
   const response = await api
     .post('/api/login') 
     .send({
@@ -18,7 +19,7 @@ before(async () => {
     })
   token = response.body.token
   console.log('Token:', token)
-})
+}) // not needed here because we dont need token to register a new user
 
 test('creation succeeds with a fresh username', async () => {
   const usersAtStart = await helper.usersInDb()
@@ -30,7 +31,6 @@ test('creation succeeds with a fresh username', async () => {
 
   await api
     .post('/api/users')
-    .set('Authorization', `Bearer ${token}`)
     .send(newUser)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -52,7 +52,6 @@ test('creation fails with a shorter than 3 characters username', async () => {
 
   await api
     .post('/api/users')
-    .set('Authorization', `Bearer ${token}`)
     .send(newUser)
     .expect(400)
     .expect('Content-Type', /application\/json/)

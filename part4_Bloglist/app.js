@@ -11,7 +11,7 @@ const blogsRouter = require('./controllers/blogs')
 const app = express()
 
 const corsOptions = {
-  origin: '*',  // Allow only this origin
+  origin: 'http://localhost:5173',  // Allow only this origin
   methods: ['GET', 'POST', 'DELETE', 'PUT'], // You can specify allowed methods
   allowedHeaders: ['Content-Type'], // You can specify allowed headers if needed
 }
@@ -31,9 +31,8 @@ app.use(middleware.tokenExtractor)
 app.use(middleware.requestLogger)
 app.use('/api/users', usersRouter) 
 app.use('/api/login', loginRouter)
-app.use('/api/blogs', middleware.userExtractor, blogsRouter) // apply userExtractor middleware only to the blogsRouter
+app.use('/api/blogs', blogsRouter) // apply userExtractor middleware only to the blogsRouter
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
-
 
 module.exports = app
