@@ -11,7 +11,7 @@ loginRouter.post('/', async (req, res, next) => {
     if (!correct) return res.status(401).json({ error: 'invalid username or password' })
 
     const token = jwt.sign({ username: user.username, id: user._id }, process.env.SECRET, { expiresIn: 3600 })
-    res.status(200).send({ token, username: user.username, name: user.name })
+    res.status(200).send({ token, username: user.username, name: user.name, id: user._id })
   } catch (e) {
     next(e)
   }
