@@ -29,9 +29,13 @@ app.use(
 
 app.use(middleware.tokenExtractor)
 app.use(middleware.requestLogger)
-app.use('/api/users', usersRouter) 
+app.use('/api/users', usersRouter) // can apply middleware here between the uri and the router , 
 app.use('/api/login', loginRouter)
-app.use('/api/blogs', blogsRouter) // apply userExtractor middleware only to the blogsRouter
+app.use('/api/blogs', blogsRouter) 
+if (process.env.NODE_ENV === 'test') {
+  const testingRouter = require('./controllers/testing')
+  app.use('/api/testing', testingRouter)
+}
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
