@@ -11,9 +11,8 @@ const AnecdoteList = () => {
   }, [anecdotes, filter])
 
   const [anecdotesSorted, setAnecdotesSorted] = useState(filteredAnecdotes) // delay the sorting so it wont look immediate(as if through a server)
-  const [swapHistory, setSwapHistory] = useState({}) // swapped elements get their array indexes pushed to an array
-  const [history, setHistory] = useState([anecdotesSorted])
-  const [historyIndex, setHistoryIndex] = useState(0) // index of going back and forth in history
+  const [history, setHistory] = useState([])
+  const [historyIndex, setHistoryIndex] = useState(-1) // index of going back and forth in history
   const [, forceRender] = useState(0); // re-render to delete the "✓ Voted!" at the end of voting(since its using useRef)
   const updatedIds = useRef([]) // recently updated anecdotes temporary change color up until the sorting happens(via the setTimeout)
   const sortingTimerId = useRef(null) // to clear the timers when user clicks vote(debounce sorting)
@@ -35,33 +34,21 @@ const AnecdoteList = () => {
   }
   
   useEffect(() => {
-    if (Object.keys(swapHistory).length === 0) { // on comopnent mount only, but only after filteredAnecdotes are ready
-      const initialHistory = {} // history for storing the changing indexes of swapped elements
-      anecdotesSorted.forEach((anecdote, idx) => initialHistory[anecdote.id] = [idx + 1])
-      setSwapHistory(initialHistory)
-      setHistory([anecdotesSorted])
-      oldPositions.current = calculatePositions(anecdotesSorted, itemRefs) // set starting positions
-    }
+    if (history.length === 0) oldPositions.current = calculatePositions(anecdotesSorted, itemRefs) // set starting positions
     sortingTimerId.current = setTimeout(() => setAnecdotesSorted([...filteredAnecdotes].sort((a, b) => b.votes - a.votes)), 1500) // delay the sorting
     return () => clearTimeout(sortingTimerId.current)
   }, [filteredAnecdotes])
   
   useLayoutEffect(() => {
     const newPositions = calculatePositions(anecdotesSorted, itemRefs)
-    let anecdotesDidSwap = false
-    anecdotesSorted.forEach((a, idx) => {
+    let elementsDidSwap = false
+    anecdotesSorted.forEach(a => {
       const el = itemRefs.current[a.id]
       if (!el) return
       const oldTop = oldPositions.current[a.id]
       const newTop = newPositions[a.id]
       if (oldTop !== undefined && Math.abs(oldTop - newTop) > 1) { // if this element recently changed position because of sorting
-        anecdotesDidSwap = true
-        setSwapHistory(prev => { // add the new index of the swapped element to the obj with arrays of indexes per element
-          const prevCopy = {...prev}
-          if (!prevCopy[a.id]) prevCopy[a.id] = [idx + 1]
-          else prevCopy[a.id].push(idx + 1)
-          return prevCopy
-        })
+        elementsDidSwap = true
         const delta = oldTop - newTop // how much the element moved in the y axis
 
         el.style.transition = 'background-color 0.6s cubic-bezier(.25,.75,.57,.96)' // Remove any inline transition override so it will snap into the old position
@@ -73,23 +60,29 @@ const AnecdoteList = () => {
         setTempBackground(bgTimers, el, a.id, 'rgb(72, 5, 33)', 'rgb(50, 3, 50)', 600); // swapped
       }
       else setTempBackground(bgTimers, el, a.id, el.style.backgroundColor, 'rgb(34, 5, 34)', 1200); // back to og color cuz element is no longer recently updated
-      if (idx === anecdotesSorted.length - 1 && anecdotesDidSwap) {
-        const newHistory = [...history]
-        newHistory.push(anecdotesSorted)
-        setHistory(newHistory)
-        setHistoryIndex(prev => prev + 1)
-      }
     })
     oldPositions.current = newPositions
+    if (historyIndex === history.length - 1 && ((anecdotesSorted.length > 0 && history.length === 0) || (elementsDidSwap && anecdotesSorted.length > 0))) {
+      const newHistory = [...history]
+      newHistory.push(anecdotesSorted)
+      setHistory(newHistory)
+      setHistoryIndex(prev => prev + 1)
+    }
+    
   }, [anecdotesSorted])
 
   const goHistory = (where) => {
-    if (where === "+" && historyIndex !== history.length - 1) {
-      setHistoryIndex(prev => prev + 1)
-      
-    } 
-  }
+    let newIndex = historyIndex;
+    if (where === '+') newIndex++;
+    else if (where === '-') newIndex--;
+    if (newIndex < 0 || newIndex > history.length - 1) return;
+    setHistoryIndex(newIndex);
+    setAnecdotesSorted(history[newIndex]);
+  };
   
+  console.log("inside goHistory historyIndex: ", historyIndex);
+  console.log("history", history);  
+
   return (
     <>
       <h2>Anecdotes</h2>
@@ -97,6 +90,10 @@ const AnecdoteList = () => {
         const wasUpdatedId = updatedIds.current.find((id) => id === anecdote.id) // was this anecdote recently voted on?
         const valueDifference = wasUpdatedId && filteredAnecdotes.reduce((x, y) => y.id === wasUpdatedId ? y.votes : x, null) - anecdote.votes
         const ogAnecdote = filteredAnecdotes.find(a => a.id === anecdote.id) // to vote with the immediately updated votes(instead of the sorted delayed votes)
+        const swapHistory = history.reduce((result, entry, index) => {
+          index <= historyIndex && entry.forEach((a, idx) => a.id === anecdote.id && result[result.length - 1] !== idx + 1 && result.push(idx + 1))
+          return result
+        }, [])
         return (
           <div ref={el => itemRefs.current[anecdote.id] = el} key={anecdote.id} className='anecdote'>
             <div>
@@ -109,11 +106,13 @@ const AnecdoteList = () => {
                 style={{ backgroundColor: wasUpdatedId ? 'lightgreen' : 'lightblue', borderRadius: '1rem'}} 
                 title="Click to vote for this anecdote"> vote </button>
               <span style={{ opacity: wasUpdatedId ? 1 : 0, transition: 'opacity 0.8s, color 0.8s', color:'rgb(88, 207, 187)' }}> ✓ Voted! {Boolean(valueDifference) && "+" + valueDifference} </span>
-              {<div style={{ float: 'right' }}>{swapHistory[anecdote.id] ? swapHistory[anecdote.id].join(' => ') : idx + 1}</div>}
+              {<div style={{ float: 'right' }}>{swapHistory?.length > 0 ? swapHistory.join(' => ') : idx + 1}</div>}
             </div>
           </div>
         )
-      })} 
+      })}
+      <button onClick={() => goHistory('+')}>forward</button>
+      <button onClick={() => goHistory('-')}>backward</button>
     </>
   )
 }
