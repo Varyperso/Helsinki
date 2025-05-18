@@ -1,0 +1,45 @@
+import { createSlice, current } from '@reduxjs/toolkit' // current is from Immer, used to print the state to console.log
+import anecdoteService from '../services/anecdotes'
+import { setNotification } from './notificationSlice'
+
+const anecdoteSlice = createSlice({
+  name: 'anecdotes',
+  initialState: [],
+  reducers: { 
+    createAnecdote(state, action) {
+      const anecdote = action.payload
+      return [...state, anecdote]
+    },
+    voteAnecdote(state, action) {
+      const updated = action.payload
+      return state.map(anecdote => anecdote.id !== updated.id ? anecdote : updated)
+    },
+    setAnecdotes(state, action) {
+      return action.payload
+    }
+  },
+})
+
+export const { voteAnecdote, setAnecdotes, createAnecdote } = anecdoteSlice.actions
+export const initializeAnecdotes = () => {
+  return async dispatch => {
+    const anecdotes = await anecdoteService.getAll()
+    dispatch(setAnecdotes(anecdotes))
+  }
+}
+export const addAnecdote = anecdote => {
+  return async dispatch => {
+    const newAnecdote = await anecdoteService.createAnecdote(anecdote)
+    dispatch(createAnecdote(newAnecdote))
+    dispatch(setNotification(`added: ${newAnecdote.content}`, 3))
+  }
+}
+export const addVote = anecdote => {
+  return async dispatch => {
+    const updatedAnecdote = await anecdoteService.voteAnecdote(anecdote)
+    dispatch(voteAnecdote(updatedAnecdote))
+    dispatch(setNotification(`voted for ${anecdote.content}`, 3))
+  }
+}
+
+export default anecdoteSlice.reducer

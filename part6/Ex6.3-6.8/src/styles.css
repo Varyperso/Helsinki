@@ -1,0 +1,26 @@
+html, body {
+  background-color: rgb(26, 13, 33);
+  color:rgb(186, 169, 153);
+  font-size: 1.125rem;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+button {
+  transition: background-color 0.5s cubic-bezier(.25,.75,.57,.96);
+  font-size: 1.25rem;
+}
+
+input {
+  color:rgb(196, 192, 153);
+  background-color: rgb(52, 52, 1);
+  font-size: 1.25rem;
+}
+
+.anecdote {
+  position: relative;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid #38166e;
+  border-radius: 4px;
+  background-color: rgb(34, 5, 34);
+}
