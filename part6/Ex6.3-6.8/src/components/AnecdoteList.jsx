@@ -21,18 +21,18 @@ const AnecdoteList = () => {
   
   const handleVote = (anecdote) => {
     dispatch(addVote(anecdote))
-
-    setUpdatedIds(prev => [...prev, anecdote.id]) // add the voted upon anecdote id to the updatedIds list
-    clearTimeout(timeoutsRef.current[anecdote.id]); // clear if this is the 2'nd+ vote
-    timeoutsRef.current[anecdote.id] = setTimeout(() => { // new timer for the last vote on the same element
+    setUpdatedIds(prev => [...prev, anecdote.id]) // push the voted upon anecdote id to the updatedIds array
+    clearTimeout(timeoutsRef.current[anecdote.id]); // clear if this is the 2'nd+ vote in a row (1800ms haven't passed)
+    timeoutsRef.current[anecdote.id] = setTimeout(() => { // timer to delete all votes on the same element
       setUpdatedIds(prev => prev.filter(id => id !== anecdote.id));
       delete timeoutsRef.current[anecdote.id]; // Clean up
     }, 1800);
+    setTempBackground(bgTimers, itemRefs.current[anecdote.id], anecdote.id, itemRefs.current[anecdote.id].style.backgroundColor, 'rgb(12, 50, 3)', 0)
   }
 
   useEffect(() => {
-    if (Object.keys(swapHistory).length === 0) { // on comopnent mount only
-      const initialHistory = {} // history for storing changing indexes of swapped elements
+    if (Object.keys(swapHistory).length === 0) { // on comopnent mount only, but only after filteredAnecdotes are ready
+      const initialHistory = {} // history for storing the changing indexes of swapped elements
       anecdotesSorted.forEach((anecdote, idx) => initialHistory[anecdote.id] = [idx + 1])
       setSwapHistory(initialHistory)
       oldPositions.current = calculatePositions(anecdotesSorted, itemRefs) // set starting positions
@@ -43,34 +43,27 @@ const AnecdoteList = () => {
   
   useLayoutEffect(() => {
     const newPositions = calculatePositions(anecdotesSorted, itemRefs)
-    
     anecdotesSorted.forEach((a, idx) => {
       const el = itemRefs.current[a.id]
       if (!el) return
-
       const oldTop = oldPositions.current[a.id]
       const newTop = newPositions[a.id]
-      
-      if (oldTop !== undefined && Math.abs(oldTop - newTop) > 1) {
-        setSwapHistory(prev => { // add the new index to the obj with array of indexes
+      if (oldTop !== undefined && Math.abs(oldTop - newTop) > 1) { // if this element recently changed position because of sorting
+        setSwapHistory(prev => { // add the new index of the swapped element to the obj with arrays of indexes per element
           const prevCopy = {...prev}
           if (!prevCopy[a.id]) prevCopy[a.id] = [idx + 1]
           else prevCopy[a.id].push(idx + 1)
           return prevCopy
         })
+        const delta = oldTop - newTop // how much the element moved in the y axis
 
-        const delta = oldTop - newTop
-
-        el.style.transition = 'background-color 0.8s cubic-bezier(.25,.75,.57,.96)' // Remove any inline transition override so it will snap into the old position
-        el.style.transform = `translateY(${delta}px)` // Offset element to old position immediately
-
+        el.style.transition = 'background-color 0.6s cubic-bezier(.25,.75,.57,.96)' // Remove any inline transition override so it will snap into the old position
+        el.style.transform = `translateY(${delta}px)` // Offset element to old position
         void el.offsetHeight  // Force browser to apply the transform immediately
-
-        el.style.transition = 'transform 0.3s cubic-bezier(.25,.75,.57,.96), background-color 0.8s cubic-bezier(.25,.75,.57,.96)'
+        el.style.transition = 'transform 0.3s cubic-bezier(.25,.75,.57,.96), background-color 0.6s cubic-bezier(.25,.75,.57,.96)'
         el.style.transform = 'translateY(0)'
       
-        if (a.id === updatedIds[updatedIds.length - 1]) setTempBackground(bgTimers, el, a.id, 'rgb(12, 50, 3)', 'rgb(50, 3, 50)', 600); // recent vote
-        else setTempBackground(bgTimers, el, a.id, 'rgb(72, 5, 33)', 'rgb(50, 3, 50)', 600); // swapped
+        setTempBackground(bgTimers, el, a.id, 'rgb(72, 5, 33)', 'rgb(50, 3, 50)', 600); // swapped
       }
       else setTempBackground(bgTimers, el, a.id, el.style.backgroundColor, 'rgb(34, 5, 34)', 1200); // back to og color cuz element is no longer recently updated
     })
@@ -91,7 +84,7 @@ const AnecdoteList = () => {
         const valueDifference = wasUpdatedId && filteredAnecdotes.reduce((x, y) => y.id === wasUpdatedId ? y.votes : x, null) - anecdote.votes
         const ogAnecdote = filteredAnecdotes.find(a => a.id === anecdote.id) // to vote with the immediately updated votes(instead of the sorted delayed votes)
         return (
-          <div ref={el => itemRefs.current[anecdote.id] = el} key={anecdote.id} className='anecdote' style={{ backgroundColor: valueDifference > 0 && 'rgb(12, 50, 3)' }}>
+          <div ref={el => itemRefs.current[anecdote.id] = el} key={anecdote.id} className='anecdote'>
             <div>
               {anecdote.content}
             </div>

@@ -1,4 +1,4 @@
-import { createSlice, current } from '@reduxjs/toolkit' // current is from Immer, used to print the state to console.log
+import { createSlice, current } from '@reduxjs/toolkit' // current() is to access the state inside the actions
 import anecdoteService from '../services/anecdotes'
 import { setNotification } from './notificationSlice'
 
