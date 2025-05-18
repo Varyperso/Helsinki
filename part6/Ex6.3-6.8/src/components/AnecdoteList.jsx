@@ -10,9 +10,12 @@ const AnecdoteList = () => {
     return anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase()))
   }, [anecdotes, filter])
 
-  const [anecdotesSorted, setAnecdotesSorted] = useState(filteredAnecdotes) // redundant but i wanted to delay the sorting so it wont be immediate
-  const [updatedIds, setUpdatedIds] = useState([]) // recently updated anecdotes temporary change color up until the sorting happens(via the setTimeout)
+  const [anecdotesSorted, setAnecdotesSorted] = useState(filteredAnecdotes) // delay the sorting so it wont look immediate(as if through a server)
   const [swapHistory, setSwapHistory] = useState({}) // swapped elements get their array indexes pushed to an array
+  const [history, setHistory] = useState([anecdotesSorted])
+  const [historyIndex, setHistoryIndex] = useState(0) // index of going back and forth in history
+  const [, forceRender] = useState(0); // re-render to delete the "✓ Voted!" at the end of voting(since its using useRef)
+  const updatedIds = useRef([]) // recently updated anecdotes temporary change color up until the sorting happens(via the setTimeout)
   const sortingTimerId = useRef(null) // to clear the timers when user clicks vote(debounce sorting)
   const timeoutsRef = useRef({}); // to remove the updatedIds after the sorting is over(cam also remove all of them in useEffect by setting .current = [])
   const bgTimers = useRef({}); // background timers
@@ -21,20 +24,22 @@ const AnecdoteList = () => {
   
   const handleVote = (anecdote) => {
     dispatch(addVote(anecdote))
-    setUpdatedIds(prev => [...prev, anecdote.id]) // push the voted upon anecdote id to the updatedIds array
+    updatedIds.current.push(anecdote.id) // push the voted upon anecdote id to the updatedIds array
     clearTimeout(timeoutsRef.current[anecdote.id]); // clear if this is the 2'nd+ vote in a row (1800ms haven't passed)
     timeoutsRef.current[anecdote.id] = setTimeout(() => { // timer to delete all votes on the same element
-      setUpdatedIds(prev => prev.filter(id => id !== anecdote.id));
+      updatedIds.current = updatedIds.current.filter(id => id !== anecdote.id);
       delete timeoutsRef.current[anecdote.id]; // Clean up
+      forceRender(prev => prev + 1) // re-render
     }, 1800);
     setTempBackground(bgTimers, itemRefs.current[anecdote.id], anecdote.id, itemRefs.current[anecdote.id].style.backgroundColor, 'rgb(12, 50, 3)', 0)
   }
-
+  
   useEffect(() => {
     if (Object.keys(swapHistory).length === 0) { // on comopnent mount only, but only after filteredAnecdotes are ready
       const initialHistory = {} // history for storing the changing indexes of swapped elements
       anecdotesSorted.forEach((anecdote, idx) => initialHistory[anecdote.id] = [idx + 1])
       setSwapHistory(initialHistory)
+      setHistory([anecdotesSorted])
       oldPositions.current = calculatePositions(anecdotesSorted, itemRefs) // set starting positions
     }
     sortingTimerId.current = setTimeout(() => setAnecdotesSorted([...filteredAnecdotes].sort((a, b) => b.votes - a.votes)), 1500) // delay the sorting
@@ -43,12 +48,14 @@ const AnecdoteList = () => {
   
   useLayoutEffect(() => {
     const newPositions = calculatePositions(anecdotesSorted, itemRefs)
+    let anecdotesDidSwap = false
     anecdotesSorted.forEach((a, idx) => {
       const el = itemRefs.current[a.id]
       if (!el) return
       const oldTop = oldPositions.current[a.id]
       const newTop = newPositions[a.id]
       if (oldTop !== undefined && Math.abs(oldTop - newTop) > 1) { // if this element recently changed position because of sorting
+        anecdotesDidSwap = true
         setSwapHistory(prev => { // add the new index of the swapped element to the obj with arrays of indexes per element
           const prevCopy = {...prev}
           if (!prevCopy[a.id]) prevCopy[a.id] = [idx + 1]
@@ -66,21 +73,28 @@ const AnecdoteList = () => {
         setTempBackground(bgTimers, el, a.id, 'rgb(72, 5, 33)', 'rgb(50, 3, 50)', 600); // swapped
       }
       else setTempBackground(bgTimers, el, a.id, el.style.backgroundColor, 'rgb(34, 5, 34)', 1200); // back to og color cuz element is no longer recently updated
+      if (idx === anecdotesSorted.length - 1 && anecdotesDidSwap) {
+        const newHistory = [...history]
+        newHistory.push(anecdotesSorted)
+        setHistory(newHistory)
+        setHistoryIndex(prev => prev + 1)
+      }
     })
     oldPositions.current = newPositions
   }, [anecdotesSorted])
 
-  useEffect(() => {
-    if (updatedIds.length === 0) return;
-    const timers = updatedIds.map((id) => setTimeout(() => setUpdatedIds((prev) => prev.filter((x) => x !== id)), 1800));
-    return () => timers.forEach(clearTimeout);
-  }, [updatedIds]);
+  const goHistory = (where) => {
+    if (where === "+" && historyIndex !== history.length - 1) {
+      setHistoryIndex(prev => prev + 1)
+      
+    } 
+  }
   
   return (
     <>
       <h2>Anecdotes</h2>
       {anecdotesSorted.map((anecdote, idx) => {
-        const wasUpdatedId = updatedIds.find((id) => id === anecdote.id) // was this anecdote recently voted on?
+        const wasUpdatedId = updatedIds.current.find((id) => id === anecdote.id) // was this anecdote recently voted on?
         const valueDifference = wasUpdatedId && filteredAnecdotes.reduce((x, y) => y.id === wasUpdatedId ? y.votes : x, null) - anecdote.votes
         const ogAnecdote = filteredAnecdotes.find(a => a.id === anecdote.id) // to vote with the immediately updated votes(instead of the sorted delayed votes)
         return (
