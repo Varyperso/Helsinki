@@ -102,6 +102,7 @@ const AnecdoteList = () => {
             <div>
               has {anecdote.votes} { " " }
               <button
+                disabled={historyIndex !== history.length - 1}
                 onClick={() => handleVote(ogAnecdote)} // original anecdote to get the correct number of votes
                 style={{ backgroundColor: wasUpdatedId ? 'lightgreen' : 'lightblue', borderRadius: '1rem'}} 
                 title="Click to vote for this anecdote"> vote </button>
