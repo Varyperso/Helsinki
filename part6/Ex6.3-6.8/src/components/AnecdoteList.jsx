@@ -42,12 +42,13 @@ const AnecdoteList = () => {
   useLayoutEffect(() => {
     const newPositions = calculatePositions(anecdotesSorted, itemRefs)
     let elementsDidSwap = false
-    anecdotesSorted.forEach(a => {
+    anecdotesSorted.forEach((a, idx) => {
       const el = itemRefs.current[a.id]
       if (!el) return
       const oldTop = oldPositions.current[a.id]
       const newTop = newPositions[a.id]
-      if (oldTop !== undefined && Math.abs(oldTop - newTop) > 1) { // if this element recently changed position because of sorting
+      
+      if (oldTop !== undefined && Math.abs(oldTop - newTop) > 50) { // 50px to compensate for height differences between elements
         elementsDidSwap = true
         const delta = oldTop - newTop // how much the element moved in the y axis
 
@@ -62,13 +63,13 @@ const AnecdoteList = () => {
       else setTempBackground(bgTimers, el, a.id, el.style.backgroundColor, 'rgb(34, 5, 34)', 1200); // back to og color cuz element is no longer recently updated
     })
     oldPositions.current = newPositions
-    if (historyIndex === history.length - 1 && ((anecdotesSorted.length > 0 && history.length === 0) || (elementsDidSwap && anecdotesSorted.length > 0))) {
+    if (historyIndex !== history.length - 1) return // if we're not on the last history entry(most recent/current one)
+    if (elementsDidSwap) {
       const newHistory = [...history]
       newHistory.push(anecdotesSorted)
       setHistory(newHistory)
       setHistoryIndex(prev => prev + 1)
     }
-    
   }, [anecdotesSorted])
 
   const goHistory = (where) => {
@@ -79,13 +80,12 @@ const AnecdoteList = () => {
     setHistoryIndex(newIndex);
     setAnecdotesSorted(history[newIndex]);
   };
-  
-  console.log("inside goHistory historyIndex: ", historyIndex);
-  console.log("history", history);  
 
   return (
     <>
       <h2>Anecdotes</h2>
+      <button onClick={() => goHistory('+')}>forward</button>
+      <button onClick={() => goHistory('-')}>backward</button>
       {anecdotesSorted.map((anecdote, idx) => {
         const wasUpdatedId = updatedIds.current.find((id) => id === anecdote.id) // was this anecdote recently voted on?
         const valueDifference = wasUpdatedId && filteredAnecdotes.reduce((x, y) => y.id === wasUpdatedId ? y.votes : x, null) - anecdote.votes
@@ -112,8 +112,6 @@ const AnecdoteList = () => {
           </div>
         )
       })}
-      <button onClick={() => goHistory('+')}>forward</button>
-      <button onClick={() => goHistory('-')}>backward</button>
     </>
   )
 }

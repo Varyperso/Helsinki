@@ -3,6 +3,7 @@ html, body {
   color:rgb(186, 169, 153);
   font-size: 1.125rem;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  min-height: 200dvh;
 }
 
 button {
