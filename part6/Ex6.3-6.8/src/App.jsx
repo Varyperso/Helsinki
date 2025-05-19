@@ -4,16 +4,18 @@ import AnecdoteList from './components/AnecdoteList'
 import AnecdoteForm from './components/AnecdoteForm'
 import FilterAnecdotes from './components/FilterAnecdotes'
 import Notification from './components/Notification'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { initializeAnecdotes } from './reducers/anecdoteSlice'
 
 
 const App = () => {
-
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(initializeAnecdotes())
   }, [])
+
+  const [history, setHistory] = useState([]) // record history when elements gets added or swapped
+  const [historyIndex, setHistoryIndex] = useState(0) // index of going back and forth in history
 
   return (
     <div>
@@ -21,8 +23,8 @@ const App = () => {
         <FilterAnecdotes />
         <Notification />
       </div>
-      <AnecdoteForm />
-      <AnecdoteList />
+      <AnecdoteForm history={history} historyIndex={historyIndex} />
+      <AnecdoteList history={history} setHistory={setHistory} historyIndex={historyIndex} setHistoryIndex={setHistoryIndex} />
     </div>
   )
 }

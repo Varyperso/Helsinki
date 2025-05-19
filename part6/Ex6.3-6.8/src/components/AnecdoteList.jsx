@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useLayoutEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { addVote } from '../reducers/anecdoteSlice'
 
-const AnecdoteList = () => {
+const AnecdoteList = ({ history, setHistory, historyIndex, setHistoryIndex }) => {
   const dispatch = useDispatch()
   const anecdotes = useSelector(state => state.anecdotes)
   const filter = useSelector(state => state.anecdotesFilter)
@@ -10,9 +10,8 @@ const AnecdoteList = () => {
     return anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase()))
   }, [anecdotes, filter])
 
-  const [anecdotesSorted, setAnecdotesSorted] = useState(filteredAnecdotes) // delay the sorting so it wont look immediate(as if through a server)
-  const [history, setHistory] = useState([])
-  const [historyIndex, setHistoryIndex] = useState(-1) // index of going back and forth in history
+  const [anecdotesSorted, setAnecdotesSorted] = useState([]) // delay the sorting so it wont look immediate(as if through a server)
+  const [historyJump, setHistoryJump] = useState(false); // are we jumping through history right now?(to not accidentaly save a history snapshot)
   const [, forceRender] = useState(0); // re-render to delete the "✓ Voted!" at the end of voting(since its using useRef)
   const updatedIds = useRef([]) // recently updated anecdotes temporary change color up until the sorting happens(via the setTimeout)
   const sortingTimerId = useRef(null) // to clear the timers when user clicks vote(debounce sorting)
@@ -20,6 +19,9 @@ const AnecdoteList = () => {
   const bgTimers = useRef({}); // background timers
   const itemRefs = useRef({}) // animate between the before and after sorting positions
   const oldPositions = useRef({}) // save the positions of the anecdotes right after pressing "vote"
+
+  console.log("history", history);
+  
   
   const handleVote = (anecdote) => {
     dispatch(addVote(anecdote))
@@ -31,6 +33,7 @@ const AnecdoteList = () => {
       forceRender(prev => prev + 1) // re-render
     }, 1800);
     setTempBackground(bgTimers, itemRefs.current[anecdote.id], anecdote.id, itemRefs.current[anecdote.id].style.backgroundColor, 'rgb(12, 50, 3)', 0)
+    setHistoryJump(false)
   }
   
   useEffect(() => {
@@ -38,38 +41,44 @@ const AnecdoteList = () => {
     sortingTimerId.current = setTimeout(() => setAnecdotesSorted([...filteredAnecdotes].sort((a, b) => b.votes - a.votes)), 1500) // delay the sorting
     return () => clearTimeout(sortingTimerId.current)
   }, [filteredAnecdotes])
-  
+
   useLayoutEffect(() => {
+    if (anecdotesSorted.length === 0) return
+    if (history.length === 0 && anecdotesSorted.length !== 0) {
+      setHistory([anecdotesSorted])
+      return
+    } 
     const newPositions = calculatePositions(anecdotesSorted, itemRefs)
-    let elementsDidSwap = false
-    anecdotesSorted.forEach((a, idx) => {
+    let swapped = false
+    anecdotesSorted.forEach(a => {
       const el = itemRefs.current[a.id]
       if (!el) return
       const oldTop = oldPositions.current[a.id]
       const newTop = newPositions[a.id]
-      
-      if (oldTop !== undefined && Math.abs(oldTop - newTop) > 50) { // 50px to compensate for height differences between elements
-        elementsDidSwap = true
+      if (oldTop !== undefined && Math.abs(oldTop - newTop) > 30) { // 30px to compensate for height differences between elements
         const delta = oldTop - newTop // how much the element moved in the y axis
-
+        swapped = true
         el.style.transition = 'background-color 0.6s cubic-bezier(.25,.75,.57,.96)' // Remove any inline transition override so it will snap into the old position
         el.style.transform = `translateY(${delta}px)` // Offset element to old position
         void el.offsetHeight  // Force browser to apply the transform immediately
         el.style.transition = 'transform 0.3s cubic-bezier(.25,.75,.57,.96), background-color 0.6s cubic-bezier(.25,.75,.57,.96)'
         el.style.transform = 'translateY(0)'
-      
         setTempBackground(bgTimers, el, a.id, 'rgb(72, 5, 33)', 'rgb(50, 3, 50)', 600); // swapped
       }
       else setTempBackground(bgTimers, el, a.id, el.style.backgroundColor, 'rgb(34, 5, 34)', 1200); // back to og color cuz element is no longer recently updated
     })
     oldPositions.current = newPositions
-    if (historyIndex !== history.length - 1) return // if we're not on the last history entry(most recent/current one)
-    if (elementsDidSwap) {
-      const newHistory = [...history]
-      newHistory.push(anecdotesSorted)
-      setHistory(newHistory)
-      setHistoryIndex(prev => prev + 1)
+
+    if (historyJump) return
+    if (!swapped) {
+      setHistory(prev => [...prev.slice(0, -1), anecdotesSorted])
+      return
     }
+
+    const newHistory = [...history]
+    newHistory.push(anecdotesSorted)
+    setHistory(newHistory)
+    setHistoryIndex(prev => prev + 1)
   }, [anecdotesSorted])
 
   const goHistory = (where) => {
@@ -79,13 +88,14 @@ const AnecdoteList = () => {
     if (newIndex < 0 || newIndex > history.length - 1) return;
     setHistoryIndex(newIndex);
     setAnecdotesSorted(history[newIndex]);
+    setHistoryJump(true)
   };
-
+  
   return (
     <>
       <h2>Anecdotes</h2>
-      <button onClick={() => goHistory('+')}>forward</button>
       <button onClick={() => goHistory('-')}>backward</button>
+      <button onClick={() => goHistory('+')}>forward</button>
       {anecdotesSorted.map((anecdote, idx) => {
         const wasUpdatedId = updatedIds.current.find((id) => id === anecdote.id) // was this anecdote recently voted on?
         const valueDifference = wasUpdatedId && filteredAnecdotes.reduce((x, y) => y.id === wasUpdatedId ? y.votes : x, null) - anecdote.votes
@@ -117,7 +127,6 @@ const AnecdoteList = () => {
 }
 
 export default AnecdoteList
-
 
 function setTempBackground(bgTimersRef, el, id, color, revertColor, delay)  {
   clearTimeout(bgTimersRef.current[id]); // Cancel previous timer if exists
