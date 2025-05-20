@@ -23,8 +23,9 @@ const App = () => {
         <FilterAnecdotes />
         <Notification />
       </div>
-      <AnecdoteForm history={history} historyIndex={historyIndex} />
+      <AnecdoteForm history={history} setHistoryIndex={setHistoryIndex} />
       <AnecdoteList history={history} setHistory={setHistory} historyIndex={historyIndex} setHistoryIndex={setHistoryIndex} />
+      <Login />
     </div>
   )
 }

@@ -3,12 +3,12 @@ html, body {
   color:rgb(186, 169, 153);
   font-size: 1.125rem;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  min-height: 200dvh;
 }
 
 button {
   transition: background-color 0.4s cubic-bezier(.25,.75,.57,.96);
   font-size: 1.25rem;
+  background-color: rgb(68, 114, 255);
 }
 
 input {
