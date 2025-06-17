@@ -8,4 +8,13 @@ const api = axios.create({
   },
 })
 
+api.interceptors.request.use(config => {
+  const loggedUserJSON = localStorage.getItem('loggedInUser');
+  if (loggedUserJSON) {
+    const user = JSON.parse(loggedUserJSON);
+    if (user.token) config.headers.Authorization = `Bearer ${user.token}`;
+  }
+  return config;
+});
+
 export default api

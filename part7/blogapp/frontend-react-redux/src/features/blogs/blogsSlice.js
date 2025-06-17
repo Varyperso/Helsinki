@@ -2,6 +2,7 @@ import { showNotification } from '../notification/notificationSlice'
 import blogService from '../../services/blog'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { isPending, isRejected, isFulfilled } from '@reduxjs/toolkit'
+import { addBlogToUser, removeBlogFromUser } from '../users/usersSlice'
 
 export const fetchBlogs = createAsyncThunk(
   'blogs/fetchAll',
@@ -14,7 +15,7 @@ export const fetchBlogs = createAsyncThunk(
     } catch (error) {
       const message = error.response?.data?.error || error.message // axios errors via response.data.error, if server down it errors with error.message
       dispatch(showNotification(`Error loading blogs: ${message}`))
-      return rejectWithValue(error.message) // don't really need rejectWithValue, isRejected or state.error because i have the notificationSlice, but ok
+      return rejectWithValue(error.message)
     }
   }
 )
@@ -24,8 +25,9 @@ export const addBlog = createAsyncThunk(
   async (newBlog, { dispatch, getState, rejectWithValue }) => {
     try {
       dispatch(showNotification('Adding blog...'))
-      const created = await blogService.create(newBlog, getState().user.token)
+      const created = await blogService.create(newBlog)      
       dispatch(showNotification('Blog created!'))
+      dispatch(addBlogToUser(created))
       return created
     } catch (error) {
       const message = error.response?.data?.error || error.message
@@ -40,7 +42,7 @@ export const updateBlog = createAsyncThunk(
   async ({ id, newObject }, { dispatch, getState, rejectWithValue }) => {
     try {
       dispatch(showNotification('Updating blog...'))
-      const updated = await blogService.update(id, newObject, getState().user.token)
+      const updated = await blogService.update(id, newObject)
       dispatch(showNotification('Blog updated!'))
       return updated
     } catch (error) {
@@ -56,8 +58,9 @@ export const deleteBlog = createAsyncThunk(
   async (id, { dispatch, getState, rejectWithValue }) => {
     try {
       dispatch(showNotification('Deleting blog...'))
-      const deleted = await blogService.deleteBlog(id, getState().user.token) // the server returns the deleted blog? need to check the server code for this :D
+      const deleted = await blogService.deleteBlog(id)
       dispatch(showNotification(`Blog ${id} deleted!`))
+      dispatch(removeBlogFromUser(deleted));
       return id
     } catch (error) {
       const message = error.response?.data?.error || error.message
@@ -67,35 +70,54 @@ export const deleteBlog = createAsyncThunk(
   }
 )
 
+export const addComment = createAsyncThunk(
+  'blogs/addComment',
+  async ({ id, newComment }, { dispatch, getState, rejectWithValue }) => {
+    try {
+      if (newComment.content === '') throw new Error('No Empty Comments')
+      if (newComment.content.length < 2) throw new Error('Comment Too Short')
+      dispatch(showNotification('Adding comment...'));
+      const response = await blogService.addComment(id, newComment);
+      dispatch(showNotification('Comment added!'));
+      return response;
+    } catch (error) {
+      const message = error.response?.data?.error || error.message;
+      dispatch(showNotification(`Error adding comment: ${message}`));
+      return rejectWithValue(message);
+    }
+  }
+);
+
 const blogSlice = createSlice({
   name: 'blogs',
   initialState: {
     items: [],
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: null, // redundant, i have notificationSlice to display the error, kept it still
+    error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // get all blogs
       .addCase(fetchBlogs.fulfilled, (state, action) => {
         state.status = 'succeeded'
         state.items = action.payload
       })
-      // create blog
       .addCase(addBlog.fulfilled, (state, action) => {
         state.status = 'succeeded'
         state.items.push(action.payload)
       })
-      // update blog
       .addCase(updateBlog.fulfilled, (state, action) => {
         const updated = action.payload
         state.items = state.items.map(blog => blog.id === updated.id ? updated : blog)
       })
-      // delete blog
       .addCase(deleteBlog.fulfilled, (state, action) => {
         const deletedBlogId = action.payload
         state.items = state.items.filter(blog => blog.id !== deletedBlogId)
+      })
+      .addCase(addComment.fulfilled, (state, action) => {
+        const updatedBlog = action.payload;
+        const index = state.items.findIndex(blog => blog.id === updatedBlog.id);
+        if (index !== -1) state.items[index] = updatedBlog;
       })
 
     builder.addMatcher(
@@ -117,7 +139,7 @@ const blogSlice = createSlice({
       isRejected(fetchBlogs, addBlog, updateBlog, deleteBlog),
       (state, action) => {
         state.status = 'failed'
-        state.error = action.payload || action.error.message // rejectWithValue = action.payload, if i error another way its action.error.message
+        state.error = action.payload || action.error.message
       }
     )
   }

@@ -2,6 +2,7 @@ import { Input } from '../../styled/Input'
 import { useState } from 'react'
 import { login } from './userSlice'
 import { useDispatch } from 'react-redux'
+import Button from '../../components/Buttons'
 
 const LoginForm = () => {
   const dispatch = useDispatch()
@@ -19,15 +20,9 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleLogin}>
-      <div>
-        <span>username</span> {' '}
-        <Input type="text" value={credentials.username} name="username" onChange={handleFormChange} data-testid="username" />
-      </div>
-      <div>
-        <span>password</span> {' '}
-        <Input type="password" value={credentials.password} name="password" onChange={handleFormChange} data-testid="password" />
-      </div>
-      <button type="submit">login</button>
+      <span> username </span> <Input type="text" value={credentials.username} name="username" onChange={handleFormChange} data-testid="username" />
+      <span> password </span> <Input type="password" value={credentials.password} name="password" onChange={handleFormChange} data-testid="password" />
+      {' '} <Button type="submit"> login </Button>
     </form>
   )
 }

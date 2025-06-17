@@ -1,30 +1,27 @@
-// Buttons.jsx
 import styled from 'styled-components';
 
-// Styled version (pure CSS-in-JS)
 const StyledButton = styled.button`
-  min-height: 32px;
-  padding: 0.5rem 1.25rem;
+  display: inline-block;
+  padding: var(--space-s);
+  margin-block: 0.25em;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.5em;
   font-size: 1rem;
   font-weight: 600;
-  color: white;
-  background: ${({ theme, primary }) => primary ? theme.colors.primary : theme.colors.secondary};
-  color: ${({ primary }) => primary ? 'white' : 'black'};
   cursor: pointer;
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
-  transition: background-color 0.2s ease;
-
+  transition: background 0.2s ease;
+  background: ${({ theme, $variant }) => $variant === 'primary' ? theme.colors.primary : theme.colors.secondary};
+  color: ${({ theme }) => theme.colors.text};
+  
   &:hover {
-    background: linear-gradient(180deg, #457b9d 5%, #1d3557 95%);
+    background: ${({ theme, $variant }) => $variant === 'primary' ? theme.colors.hover.primary : theme.colors.hover.secondary};
   }
 `;
 
-// Smart component with logic
 function Button({ children, isLoading, variant = 'primary', ...rest }) {
   return (
-    <StyledButton variant={variant} disabled={isLoading || rest.disabled} {...rest}>
+    <StyledButton $variant={variant} disabled={isLoading || rest.disabled} {...rest}>
       {isLoading ? 'Loading…' : children}
     </StyledButton>
   );
@@ -32,8 +29,3 @@ function Button({ children, isLoading, variant = 'primary', ...rest }) {
 
 export { StyledButton };
 export default Button;
-
-// examples:
-// <Button onClick={() => alert('Clicked!')}>Primary</Button>
-// <Button variant="secondary">Secondary</Button>
-// <Button variant="danger" isLoading>Delete</Button>

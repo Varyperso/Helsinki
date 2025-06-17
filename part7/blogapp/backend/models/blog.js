@@ -10,7 +10,13 @@ const blogSchema = new mongoose.Schema({
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
-    }
+    },
+    comments: [
+      {
+        id: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() }, // this prevents adding a new 'Comment' model..
+        content: String
+      }
+    ]
   },
   { strict: 'throw' } // throws an error and rejects unknown fields (instead of ignoring them without an error)
 )

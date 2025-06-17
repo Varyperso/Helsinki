@@ -1,14 +1,15 @@
 const bcrypt = require('bcrypt')
 const usersRouter = require('express').Router()
 const { User } = require('../db')
+const middleware = require('../utils/middleware')
 
 usersRouter.get('/', async (req, res) => {
   const users = await User.find({}).populate('blogs' , { user: 0 }) // user: 0 to exclude the user field from the blogs
   res.json(users)
 })
 
-usersRouter.delete('/', async (req, res) => {
-  await User.deleteMany({})
+usersRouter.delete('/', middleware.userExtractor, middleware.adminOnly, async (req, res) => {
+  await User.deleteMany({}) // this route should have admin middleware
   res.status(204).end()
 })
 
@@ -21,6 +22,7 @@ usersRouter.post('/', async (req, res) => {
     username,
     name,
     passwordHash,
+    isAdmin: false,
   })
 
   const savedUser = await user.save()

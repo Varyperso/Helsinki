@@ -8,9 +8,9 @@ loginRouter.post('/', async (req, res, next) => {
   try {
     const user = await User.findOne({ username })
     const correct = user && await bcrypt.compare(password, user.passwordHash)
-    if (!correct) return res.status(401).json({ error: 'invalid username or password' })
+    if (!correct) return res.status(401).json({ error: 'Invalid Username or Password' })
 
-    const token = jwt.sign({ username: user.username, id: user._id }, process.env.SECRET, { expiresIn: 3600 })
+    const token = jwt.sign({ username: user.username, id: user._id }, process.env.SECRET, { expiresIn: 3600 }) // 1 hour
     res.status(200).send({ token, username: user.username, name: user.name, id: user._id })
   } catch (e) {
     next(e)

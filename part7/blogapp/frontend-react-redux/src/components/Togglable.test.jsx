@@ -1,12 +1,13 @@
-import { render, screen } from '@testing-library/react' 
+import { screen } from '@testing-library/react' 
 import userEvent from '@testing-library/user-event'
 import Togglable from './Togglable'
+import { renderWithTheme } from '../testUtils'
 
 describe('<Togglable />', () => {
   let container // render returns a container object that contains methods to access dom elements
 
   beforeEach(() => {
-    container = render(
+    container = renderWithTheme(
       <Togglable buttonLabel="show...">
         <div className="testDiv" >
           togglable content
@@ -38,7 +39,7 @@ describe('<Togglable />', () => {
     const button = screen.getByText('show...')
     await user.click(button)
 
-    const closeButton = screen.getByText('cancel')
+    const closeButton = screen.getByText('Cancel')
     await user.click(closeButton)
 
     const content = screen.getByTestId('togglable-content')

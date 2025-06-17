@@ -13,7 +13,7 @@ export const login = createAsyncThunk('user/login', async (credentials, { dispat
   catch (error) {
     const message = error.response?.data?.error || error.message
     dispatch(showNotification(`Error logging in: ${message}`))
-    return rejectWithValue(message) // don't really need rejectWithValue, isRejected or state.error because i have the notificationSlice, but ok
+    return rejectWithValue(message)
   }
 })
 
@@ -27,23 +27,24 @@ const userSlice = createSlice({
       localStorage.removeItem('loggedInUser')
       return initialUserState
     },
-    loginSuccess(state, action) { // login from the useEffect localStorage, no server communication here
+    loginSuccess(state, action) { // login from the <App> useEffect localStorage, no server communication here
       const { token, username, name, id } = action.payload
       state.token = token // can just mutate state because of Immer, no need to return the state
       state.username = username
       state.name = name
       state.id = id
-    }
+      state.status = 'succeeded'
+      state.error = null
+    },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(login.fulfilled, (state, action) => {
-        const { token, username, name, id } = action.payload
-        state.token = token
-        state.username = username
-        state.name = name
-        state.id = id
-      })
+    builder.addCase(login.fulfilled, (state, action) => {
+      const { token, username, name, id } = action.payload
+      state.token = token
+      state.username = username
+      state.name = name
+      state.id = id
+    })
     
     builder.addMatcher(
       isPending(login),
@@ -63,19 +64,10 @@ const userSlice = createSlice({
     builder.addMatcher(
       isRejected(login),
       (state, action) => {
-        state.status = 'failed' // redundant, i have notificationSlice to display the error, but i kept it still
-        state.error = action.payload || action.error.message
+        state.status = 'failed' // if we throw new Error("Error") before the try {} block == action.error.message
+        state.error = action.payload || action.error.message // from rejectWithValue(someValue), someValue == action.payload always from catch block
       }
     )
-
-    // for cathing expired token errors in ALL asyncThunk slices in all reducers
-    builder.addMatcher(
-      (action) => isRejected(action) && typeof action.payload === 'string' && action.payload.toLowerCase().includes('expired'),
-      (state, action) => {
-        state.error = action.payload
-        state.status = 'failed'
-      }
-)
   }
 })
 

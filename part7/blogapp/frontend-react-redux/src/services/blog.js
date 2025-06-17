@@ -7,21 +7,23 @@ const getAll = async () => {
 }
 
 const create = async (newObject, token) => {
-  const config = { headers: { Authorization: `Bearer ${token}` } }
-  const response = await api.post(baseUrl, newObject, config)
+  const response = await api.post(baseUrl, newObject)
   return response.data
 }
 
 const update = async (id, newObject, token) => {
-  const config = { headers: { Authorization: `Bearer ${token}` } }
-  const response = await api.patch(`${baseUrl}/${id}`, newObject, config)
+  const response = await api.patch(`${baseUrl}/${id}`, newObject)
   return response.data
 }
 
 const deleteBlog = async (id, token) => {
-  const config = { headers: { Authorization: `Bearer ${token}` } }
-  const response = await api.delete(`${baseUrl}/${id}`, config)
+  const response = await api.delete(`${baseUrl}/${id}`)
   return response.data
 }
 
-export default { getAll, create, update, deleteBlog }
+const addComment = async (id, newComment, token) => {
+  const response = await api.post(`${baseUrl}/${id}/comments`, newComment);
+  return response.data;
+};
+
+export default { getAll, create, update, deleteBlog, addComment }

@@ -1,12 +1,13 @@
 import styled from 'styled-components';
 
 export const Input = styled.input`
-  background-color: ${({ theme }) => theme.colors.secondary};
+  background-color: ${({ theme }) => theme.colors.background};
   color: ${({ theme }) => theme.colors.text};
-  border: 1px solid ${({ theme }) => theme.colors.background};
+  border: 1px solid ${({ theme }) => theme.colors.accent};
   padding: 0.25em .5em;
   border-radius: 0.25em;
   transition: border-color 0.3s ease, background-color 0.3s ease;
+  caret-color: green;
 
   &:focus {
     border-color: ${({ theme }) => theme.colors.primary};

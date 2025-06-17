@@ -3,8 +3,6 @@ const blogSchema = require('./models/blog');
 const userSchema = require('./models/user');
 const { MONGODB_URI } = require('./utils/config');
 
-// Create **dedicated connection**, not global!
-
 console.log('NODE_ENV:', process.env.NODE_ENV)
 
 mongoose.connect(MONGODB_URI)

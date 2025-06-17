@@ -2,6 +2,7 @@ require('dotenv').config()
 const fs = require('fs')
 const path = require('path')
 const express = require('express')
+const helmet = require('helmet')
 const cors = require('cors')
 const morgan = require('morgan')
 const middleware = require('./utils/middleware')
@@ -17,6 +18,18 @@ const corsOptions = {
   allowedHeaders: ['Content-Type'], // You can specify allowed headers if needed
 }
 app.use(cors(corsOptions))
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"], // if you use inline styles
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "http://localhost:3001"], // backend API
+      fontSrc: ["'self'"],
+    }
+  }
+}));
 app.use(express.json())
 app.use(morgan('tiny')) // present for logger
 
@@ -24,9 +37,7 @@ const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'),
 morgan.token('req-body-json', (req, res) => {
   return JSON.stringify(req.body)
 })
-app.use(
-  morgan(':method :url :status :res[content-length] - :response-time ms - :req-body-json', { stream: accessLogStream })
-)
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :req-body-json', { stream: accessLogStream }))
 
 app.use(middleware.tokenExtractor)
 app.use(middleware.requestLogger)

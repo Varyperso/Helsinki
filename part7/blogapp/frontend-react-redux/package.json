@@ -10,17 +10,17 @@
     "server": "cd ../backend && npm run start",
     "server:playwright": "cd ../backend && npm run start:test",
     "test": "vitest run",
-    "test:blog": "vitest run components/Blog.test.jsx",
+    "test:togglable": "vitest run components/Togglable.test.jsx",
     "playwright": "cd tests/playwright && npm run test",
     "playwright:report": "cd tests/playwright && npm run test:report"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.9.0",
-    "prop-types": "^15.8.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0",
+    "react-router": "^7.6.2",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {
