@@ -1,0 +1,35 @@
+{
+  "name": "library-backend",
+  "version": "1.0.0",
+  "main": "library-backend.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node library-backend.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Varyperso/Helsinki.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Varyperso/Helsinki/issues"
+  },
+  "homepage": "https://github.com/Varyperso/Helsinki#readme",
+  "description": "",
+  "dependencies": {
+    "@apollo/server": "^4.12.2",
+    "@as-integrations/express5": "^1.1.0",
+    "@graphql-tools/schema": "^10.0.23",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "graphql": "^16.11.0",
+    "graphql-subscriptions": "^3.0.0",
+    "graphql-ws": "^6.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.0",
+    "ws": "^8.18.2"
+  }
+}
