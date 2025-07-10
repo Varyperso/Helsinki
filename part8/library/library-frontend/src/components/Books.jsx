@@ -6,14 +6,9 @@ const Books = () => {
   const [currentGenre, setCurrentGenre] = useState('all')
 
   const allBooks = useQuery(ALL_BOOKS).data?.allBooks
-
-  console.log("allBooks from Books.jsx", allBooks);
-
   const filteredBooks = useQuery(ALL_BOOKS, {
     variables: { genre: currentGenre === 'all' ? null : currentGenre }
   }).data?.allBooks
-
-   console.log("filteredBooks from Books.jsx", filteredBooks);
 
   if (!allBooks || !filteredBooks) return <div>Loading...</div>
   

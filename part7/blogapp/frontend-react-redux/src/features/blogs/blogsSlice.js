@@ -1,4 +1,4 @@
-import { showNotification } from '../notification/notificationSlice'
+import { setNotification } from '../notification/notificationSlice'
 import blogService from '../../services/blog'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { isPending, isRejected, isFulfilled } from '@reduxjs/toolkit'
@@ -6,15 +6,15 @@ import { addBlogToUser, removeBlogFromUser } from '../users/usersSlice'
 
 export const fetchBlogs = createAsyncThunk(
   'blogs/fetchAll',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { dispatch, getState, rejectWithValue }) => {
     try {
-      dispatch(showNotification('Loading blogs...'))
+      dispatch(setNotification('Loading blogs...'))
       const blogs = await blogService.getAll()
-      dispatch(showNotification('Blogs loaded!'))
+      dispatch(setNotification('Blogs loaded!'))
       return blogs // this will be action.payload in the extraReducers .fulfilled
     } catch (error) {
       const message = error.response?.data?.error || error.message // axios errors via response.data.error, if server down it errors with error.message
-      dispatch(showNotification(`Error loading blogs: ${message}`))
+      dispatch(setNotification(`Error loading blogs: ${message}`))
       return rejectWithValue(error.message)
     }
   }
@@ -24,14 +24,14 @@ export const addBlog = createAsyncThunk(
   'blogs/create',
   async (newBlog, { dispatch, getState, rejectWithValue }) => {
     try {
-      dispatch(showNotification('Adding blog...'))
+      dispatch(setNotification('Adding blog...'))
       const created = await blogService.create(newBlog)      
-      dispatch(showNotification('Blog created!'))
+      dispatch(setNotification('Blog created!'))
       dispatch(addBlogToUser(created))
       return created
     } catch (error) {
       const message = error.response?.data?.error || error.message
-      dispatch(showNotification(`Error creating blog: ${message}`))
+      dispatch(setNotification(`Error creating blog: ${message}`))
       return rejectWithValue(error.message)
     }
   }
@@ -41,13 +41,13 @@ export const updateBlog = createAsyncThunk(
   'blogs/update',
   async ({ id, newObject }, { dispatch, getState, rejectWithValue }) => {
     try {
-      dispatch(showNotification('Updating blog...'))
+      dispatch(setNotification('Updating blog...'))
       const updated = await blogService.update(id, newObject)
-      dispatch(showNotification('Blog updated!'))
+      dispatch(setNotification('Blog updated!'))
       return updated
     } catch (error) {
       const message = error.response?.data?.error || error.message
-      dispatch(showNotification(`Error updating blog: ${message}`))
+      dispatch(setNotification(`Error updating blog: ${message}`))
       return rejectWithValue(message)
     }
   }
@@ -57,14 +57,14 @@ export const deleteBlog = createAsyncThunk(
   'blogs/delete',
   async (id, { dispatch, getState, rejectWithValue }) => {
     try {
-      dispatch(showNotification('Deleting blog...'))
+      dispatch(setNotification('Deleting blog...'))
       const deleted = await blogService.deleteBlog(id)
-      dispatch(showNotification(`Blog ${id} deleted!`))
+      dispatch(setNotification(`Blog ${id} deleted!`))
       dispatch(removeBlogFromUser(deleted));
       return id
     } catch (error) {
       const message = error.response?.data?.error || error.message
-      dispatch(showNotification(`Error deleting blog ${id}: ${message}`))
+      dispatch(setNotification(`Error deleting blog ${id}: ${message}`))
       return rejectWithValue(message)
     }
   }
@@ -76,13 +76,13 @@ export const addComment = createAsyncThunk(
     try {
       if (newComment.content === '') throw new Error('No Empty Comments')
       if (newComment.content.length < 2) throw new Error('Comment Too Short')
-      dispatch(showNotification('Adding comment...'));
+      dispatch(setNotification('Adding comment...'));
       const response = await blogService.addComment(id, newComment);
-      dispatch(showNotification('Comment added!'));
+      dispatch(setNotification('Comment added!'));
       return response;
     } catch (error) {
       const message = error.response?.data?.error || error.message;
-      dispatch(showNotification(`Error adding comment: ${message}`));
+      dispatch(setNotification(`Error adding comment: ${message}`));
       return rejectWithValue(message);
     }
   }

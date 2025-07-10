@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { updateBlog, addComment } from './blogsSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import Button from '../../components/Buttons'
-import { useParams, useNavigate } from 'react-router'
+import { useParams, useNavigate, Link } from 'react-router'
 import { handleDeleteBlog } from '../../app/handlers'
 import BlogComments from './BlogComments'
 import { Input } from '../../styled/Input'
@@ -10,8 +10,8 @@ import { useState } from 'react'
 
 const BlogItem = styled.div`
   padding: 0.5em;
-  border: solid 1px;
-  border-radius: 0.25em;
+  border: ${({ theme }) => `0.125em solid ${theme.colors.bgLight}`};
+  border-radius: 0.5em;
   margin-bottom: 0.5rem;
 `
 
@@ -38,7 +38,7 @@ const Blog = () => {
   const blog = blogs.find(b => b.id === blogId)
 
   const navigate = useNavigate()
-
+  
   if (!blog) return <div>Invalid Blog Id..</div>
 
   const handleChange = ({ target }) => {
@@ -58,8 +58,8 @@ const Blog = () => {
         {blog.title} By {blog.author}
       </TitleAuthor>
 
-      <p>Added by {user.username}</p>
-
+      <p>Added by <Link to={`/users/${blog.user.id}`}> {user.username} </Link></p>
+      
       <MoreInfo>
         <a href={blog.url} target="_blank" rel="noopener noreferrer"> {blog.url} </a>
 

@@ -20,9 +20,7 @@ export const updateCache = (cache, query, addedBook) => {
 
   cache.updateQuery(query, (data) => {
     if (!data || !data.allBooks) return { allBooks: [addedBook] }
-    return {
-      allBooks: uniqByName(data.allBooks.concat(addedBook)),
-    }
+    return { allBooks: uniqByName(data.allBooks.concat(addedBook)) }
   })
 }
 
@@ -39,15 +37,20 @@ const App = () => {
   useSubscription(BOOK_ADDED, {
     onData: ({ data, client }) => {
       const addedBook = data.data.bookAdded
-      console.log("📘 book added via subscription:", addedBook)
-
-      // Update base query (no filter)
-      updateCache(client.cache, { query: ALL_BOOKS }, addedBook)
-
-      updateCache(client.cache, { // for filteredBooks to re-render too, since its a separate query
-        query: ALL_BOOKS,
-        variables: { genre: null } // null = 'all', 
-      }, addedBook)
+      const cache = client.cache
+      updateCache(cache, { query: ALL_BOOKS }, addedBook) // Update base query (no filter)]
+      // filteredBooks by genre need a separate query entry in cache, null = 'all' so when a new book is added, the 'all' query get updated too
+      updateCache(cache, { query: ALL_BOOKS, variables: { genre: null } }, addedBook)
+      // updates all genres this book belongs to(if we're on "sci-fi" window it will update too)
+      addedBook.genres.forEach((genre) => { updateCache(cache, { query: ALL_BOOKS, variables: { genre } }, addedBook) })
+      // updated all authors to reflect the new book addition
+      cache.updateQuery({ query: ALL_AUTHORS }, ({ allAuthors }) => {
+        const existingAuthor = allAuthors.find(a => a.name === addedBook.author.name)
+        if (existingAuthor) {
+          return { allAuthors: allAuthors.map(a => a.name === addedBook.author.name ? { ...a, bookCount: a.bookCount + 1 } : a ) }
+        }
+        return { allAuthors: allAuthors.concat({ ...addedBook.author, bookCount: 1 }) }
+      })
     }
   })
   

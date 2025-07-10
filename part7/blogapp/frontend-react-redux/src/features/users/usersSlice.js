@@ -1,19 +1,19 @@
 import { createSlice, createAsyncThunk, isPending, isFulfilled, isRejected } from '@reduxjs/toolkit'
-import { showNotification } from '../notification/notificationSlice'
+import { setNotification } from '../notification/notificationSlice'
 import usersService from '../../services/users'
 
 export const fetchAllUsers = createAsyncThunk(
   'users/getAll', 
   async (_, { dispatch, getState, rejectWithValue }) => {
     try {
-      dispatch(showNotification('Fetching All Users...'))
+      dispatch(setNotification('Fetching All Users...'))
       const users = await usersService.fetchAll()
-      dispatch(showNotification(`All Users Fetched!`))
+      dispatch(setNotification(`All Users Fetched!`))
       return users
     }
     catch (error) {
       const message = error.response?.data?.error || error.message
-      dispatch(showNotification(`Error Fetching Users: ${message}`))
+      dispatch(setNotification(`Error Fetching Users: ${message}`))
       return rejectWithValue(message)
     }
   }

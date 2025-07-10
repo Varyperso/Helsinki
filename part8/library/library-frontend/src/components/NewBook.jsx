@@ -12,28 +12,27 @@ const NewBook = () => {
   const [error, setError] = useState('')
 
   const [ addBook ] = useMutation(ADD_BOOK, {
-    
     onError: (error) => {
       const messages = error.graphQLErrors.map(e => e.message).join('\n')
       setError(messages)
     },
-    update: (cache, response) => {
-      const newBook = response.data.addBook
+    // update: (cache, response) => { // update cache logic BEFORE we had websocket subscriptions update the cache...
+    //   const newBook = response.data.addBook
 
-      cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
-        return { allBooks: allBooks.concat(newBook) }
-      })
+    //   cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
+    //     return { allBooks: allBooks.concat(newBook) }
+    //   })
 
-      cache.updateQuery({ query: ALL_AUTHORS }, ({ allAuthors }) => {
-        const existingAuthor = allAuthors.find(a => a.name === newBook.author.name)
-        if (existingAuthor) {
-          const updatedAuthor = { ...existingAuthor, bookCount: existingAuthor.bookCount + 1 }
-          return { allAuthors: allAuthors.map(a => a.name === updatedAuthor.name ? updatedAuthor : a) }
-        } 
+    //   cache.updateQuery({ query: ALL_AUTHORS }, ({ allAuthors }) => {
+    //     const existingAuthor = allAuthors.find(a => a.name === newBook.author.name)
+    //     if (existingAuthor) {
+    //       const updatedAuthor = { ...existingAuthor, bookCount: existingAuthor.bookCount + 1 }
+    //       return { allAuthors: allAuthors.map(a => a.name === updatedAuthor.name ? updatedAuthor : a) }
+    //     } 
 
-        return { allAuthors: allAuthors.concat({ ...newBook.author, bookCount: 1 }) } // new author
-      })
-    }
+    //     return { allAuthors: allAuthors.concat({ ...newBook.author, bookCount: 1 }) } // new author
+    //   })
+    // }
   })
 
   const submit = async (event) => {

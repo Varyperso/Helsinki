@@ -2,8 +2,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { Link, useNavigate } from "react-router"
 import Button from "../../components/Buttons"
 import { handleDeleteBlog } from "../../app/handlers"
-import { useEffect } from "react"
-import { fetchBlogs } from "./blogsSlice"
 
 const BlogList = () => {
   const dispatch = useDispatch()
@@ -12,11 +10,7 @@ const BlogList = () => {
 
   const navigate = useNavigate()
 
-  useEffect(() => {
-    if (user.status === "succeeded") dispatch(fetchBlogs())
-  }, [user.status])
-
-  if (user.status === 'idle') return <div>Please Login..</div>
+  if (user.status === 'idle' || user.status === 'failed') return <div>Please Login..</div>
   if (blogs.length === 0) return <div>No Blogs Yet..</div>
 
   return (

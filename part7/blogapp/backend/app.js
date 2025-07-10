@@ -9,6 +9,7 @@ const middleware = require('./utils/middleware')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
 const blogsRouter = require('./controllers/blogs')
+const refreshTokenRouter = require('./controllers/refreshToken')
 
 const app = express()
 
@@ -41,13 +42,17 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms - 
 
 app.use(middleware.tokenExtractor)
 app.use(middleware.requestLogger)
+
 app.use('/api/users', usersRouter) // can apply middleware here between the uri and the router , 
 app.use('/api/login', loginRouter)
 app.use('/api/blogs', blogsRouter) 
+app.use('/api/refreshToken', refreshTokenRouter) 
+
 if (process.env.NODE_ENV === 'test') {
   const testingRouter = require('./controllers/testing')
   app.use('/api/testing', testingRouter)
 }
+
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 

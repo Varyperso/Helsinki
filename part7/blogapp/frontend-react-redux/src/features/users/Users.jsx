@@ -14,13 +14,13 @@ const Users = () => {
     if (user.status === "succeeded") dispatch(fetchAllUsers())
   }, [user.status])
 
-  if (user.status === 'idle') return <div>Please Login..</div>
+  if (user.status === 'idle' || user.status === 'failed') return <div>Please Login..</div>
   if (users.length === 0) return <div>No Users Yet..</div>
   
   return (
     <div style={{ whiteSpace: 'pre', fontFamily: 'monospace' }}>
       username: {' '.repeat(4) + 'Blogs Created:'}
-      {users.map(user => <div key={user.id}><Link style={linkStyle} to={`/users/${user.id}`}>{user.username}</Link>{' '.repeat(4) + user.blogs.length}</div>)}
+      {users.map(user => <div key={user.id}><Link style={linkStyle} to={`/users/${user.id}`}>{user.username}</Link>{' '.repeat(5) + user.blogs.length}</div>)}
     </div>
   )
 }

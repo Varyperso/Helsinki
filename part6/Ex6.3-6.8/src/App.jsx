@@ -1,5 +1,4 @@
 import { useDispatch } from 'react-redux'
-import anecdoteService from './services/anecdotes'
 import AnecdoteList from './components/AnecdoteList'
 import AnecdoteForm from './components/AnecdoteForm'
 import FilterAnecdotes from './components/FilterAnecdotes'
@@ -10,6 +9,7 @@ import { initializeAnecdotes } from './reducers/anecdoteSlice'
 
 const App = () => {
   const dispatch = useDispatch()
+  
   useEffect(() => {
     dispatch(initializeAnecdotes())
   }, [])
@@ -25,7 +25,6 @@ const App = () => {
       </div>
       <AnecdoteForm history={history} setHistoryIndex={setHistoryIndex} />
       <AnecdoteList history={history} setHistory={setHistory} historyIndex={historyIndex} setHistoryIndex={setHistoryIndex} />
-      <Login />
     </div>
   )
 }

@@ -38,7 +38,7 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (req, res, next) => {
     await Blog.findByIdAndDelete(id)
     req.user.blogs = req.user.blogs.filter(blog => blog.toString() !== id)
     await req.user.save()
-    res.status(200).json({ blogId: id, userId: req.user.id });
+    res.status(200).json({ blogId: id, userId: req.user.id })
   }
   catch (err) {
     next(err)
@@ -54,24 +54,33 @@ blogsRouter.patch('/:id', middleware.userExtractor, async (req, res, next) => {
       { new: true, runValidators: true } // Options to return the updated document and run validators
     ).populate('user');
     if (!updatedBlog) return res.status(404).json({ error: 'Blog Not Found' })
-    res.status(200).json(updatedBlog);
+    res.status(200).json(updatedBlog)
   } catch (err) {
     next(err)
   }
 });
 
-blogsRouter.post('/:id/comments', middleware.userExtractor, async (req, res) => {
-  const { content } = req.body;
-  const blog = await Blog.findById(req.params.id).populate('user');
-  if (!blog) return res.status(404).json({ error: 'Blog Not Found' });
-  blog.comments.push({ content });
-  const savedBlog = await blog.save();
-  res.status(201).json(savedBlog);
-});
+blogsRouter.post('/:id/comments', middleware.userExtractor, async (req, res, next) => {
+  const { content } = req.body
+  try {
+    const blog = await Blog.findById(req.params.id)
+    if (!blog) return res.status(404).json({ error: 'Blog Not Found' })
+    blog.comments.push({ content })
+    const savedBlog = await blog.save()
+    res.status(201).json(savedBlog)
+  } catch (err) {
+    next(err)
+  }
+})
 
 blogsRouter.delete('/', middleware.userExtractor, middleware.adminOnly, async (req, res, next) => {
-  await Blog.deleteMany({})
-  res.status(204).end()
+  try {
+    await Blog.deleteMany({})
+    res.status(204).end()
+  }
+  catch (err) {
+    next(err)
+  }
 })
   
 module.exports = blogsRouter

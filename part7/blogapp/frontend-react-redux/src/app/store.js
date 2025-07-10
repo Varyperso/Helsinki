@@ -3,6 +3,7 @@ import userReducer from '../features/user/userSlice'
 import blogsReducer from '../features/blogs/blogsSlice'
 import usersReducer from '../features/users/usersSlice'
 import notificationReducer from '../features/notification/notificationSlice'
+import uiReducer from '../features/ui/uiSlice'
 
 import { sessionExpirationMiddleware } from './middleware'
 
@@ -11,7 +12,8 @@ const store = configureStore({
     user: userReducer,
     blogs: blogsReducer,
     users: usersReducer,
-    notification: notificationReducer
+    notification: notificationReducer,
+    ui: uiReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(sessionExpirationMiddleware),
 })

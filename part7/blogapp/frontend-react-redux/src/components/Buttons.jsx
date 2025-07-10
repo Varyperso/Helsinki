@@ -2,20 +2,23 @@ import styled from 'styled-components';
 
 const StyledButton = styled.button`
   display: inline-block;
-  padding: var(--space-s);
-  margin-block: 0.25em;
+  min-height: 2rem;
+  padding: var(--space-xs) var(--space-s);
+  margin-block: 0.25rem;
   border: none;
   border-radius: 0.5em;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
   transition: background 0.2s ease;
-  background: ${({ theme, $variant }) => $variant === 'primary' ? theme.colors.primary : theme.colors.secondary};
+  background: ${({ theme, $variant }) => $variant === 'primary' ? theme.colors.button.primary : theme.colors.button.secondary};
   color: ${({ theme }) => theme.colors.text};
+  border: 0.125rem solid transparent;
   
   &:hover {
-    background: ${({ theme, $variant }) => $variant === 'primary' ? theme.colors.hover.primary : theme.colors.hover.secondary};
+    background: ${({ theme, $variant }) => $variant === 'primary' ? theme.colors.button.primaryHover : theme.colors.button.secondaryHover};
+    border: ${({ theme, $variant }) => `0.125rem solid ${$variant === 'primary' ? theme.colors.button.primary : theme.colors.button.secondary}`};
   }
 `;
 

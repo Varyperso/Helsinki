@@ -7,6 +7,7 @@ import Button from '../../components/Buttons'
 const LoginForm = () => {
   const dispatch = useDispatch()
   const [credentials, setCredentials] = useState({ username: '', password: '' })
+  const [isOnShowPassword, setIsOnShowPassword] = useState(false)
 
   const handleLogin = (e) => {
     e.preventDefault()
@@ -19,10 +20,19 @@ const LoginForm = () => {
   }
 
   return (
-    <form onSubmit={handleLogin}>
-      <span> username </span> <Input type="text" value={credentials.username} name="username" onChange={handleFormChange} data-testid="username" />
-      <span> password </span> <Input type="password" value={credentials.password} name="password" onChange={handleFormChange} data-testid="password" />
-      {' '} <Button type="submit"> login </Button>
+    <form onSubmit={handleLogin} style={{ display: 'flex', alignItems:'center', gap: '0.25em', flexWrap: 'wrap' }}>
+      <div>
+        <span> username </span>
+        <Input type="text" value={credentials.username} name="username" onChange={handleFormChange} data-testid="username" />
+      </div>
+
+      <div>
+        <span> password </span>
+        <Input type={isOnShowPassword ? 'text' : 'password'} value={credentials.password} name="password" onChange={handleFormChange} data-testid="password" autoComplete='off' />
+      </div>
+
+      <Button type="button" onClick={() => setIsOnShowPassword(prev => !prev)} style={{ fontSize: '0.75rem' }}> {isOnShowPassword ? 'Hide' : 'Show'} </Button>
+      <Button type="submit"> login </Button>
     </form>
   )
 }
