@@ -31,22 +31,15 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
       const patient = await patientService.create(values);
       setPatients(patients.concat(patient));
       setModalOpen(false);
-    } catch (e: unknown) {
-      if (axios.isAxiosError(e)) {
-        if (e?.response?.data && typeof e?.response?.data === "string") {
-          const message = e.response.data.replace('Something went wrong. Error: ', '');
-          console.error(message);
-          setError(message);
-        } else {
-          setError("Unrecognized axios error");
-        }
-      } else {
-        console.error("Unknown error", e);
-        setError("Unknown error");
+    } catch (error) {
+      if (axios.isAxiosError(error) && Array.isArray(error.response?.data?.error)) {
+        const errDataObj = error.response?.data?.error[0];
+        console.error(errDataObj)
+        setError(errDataObj.message)
       }
+      else setError("unknown error")
     }
-  };
-
+  }
   return (
     <div className="App">
       <Box>

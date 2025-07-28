@@ -1,0 +1,13 @@
+### POST request with JSON body
+POST http://localhost:3001/api/patients
+Content-Type: application/json
+
+{
+  "date": "2012-06-07",
+  "weather": "sunny",
+  "visibility": "good",
+  "comment": "it was ok"
+}
+
+### GET request
+GET http://localhost:3001/api/patients

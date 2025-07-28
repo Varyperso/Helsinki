@@ -1,25 +1,21 @@
-import { useEffect, useState, useRef, useLayoutEffect, useMemo } from 'react'
+import { useState, useRef, useLayoutEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { addVote, removeAnecdote } from '../reducers/anecdoteSlice'
 import useHistory from '../hooks/useHistory'
+import useCalculatePositions, { calculatePositions } from '../hooks/useCalcualtePositions'
 
 const AnecdoteList = ({ history, setHistory, historyIndex, setHistoryIndex }) => {
   const dispatch = useDispatch()
   const anecdotes = useSelector(state => state.anecdotes)
   const filter = useSelector(state => state.anecdotesFilter)
-  const filteredAnecdotes = useMemo(() => {
-    return anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase()))
-  }, [anecdotes, filter])
+  const filteredAnecdotes = useMemo(() => anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase())), [anecdotes, filter])
 
-  const [anecdotesSorted, setAnecdotesSorted] = useState([]) // delay the sorting so it wont look immediate(for demonstration purposes)
   const [, forceRender] = useState(0); // re-render to delete the "✓ Voted!" at the end of voting(since its using useRef)
   const updatedIds = useRef([]) // recently updated anecdotes temporary change color up until the sorting happens(via the setTimeout)
-  const sortingTimerId = useRef(null) // clear the timers when user clicks vote(debounce sorting)
   const timeoutsRef = useRef({}); // remove the updatedIds after the sorting is over
   const bgTimers = useRef({}); // background color timers
-  const itemRefs = useRef({}) // animate between the before and after sorting positions(if there was a swap/add/delete)
-  const oldPositions = useRef({}) // save the positions of the anecdotes right after pressing "vote"
 
+  const { anecdotesSorted, setAnecdotesSorted, oldPositions, itemRefs } = useCalculatePositions(filteredAnecdotes)
   const onHistoryTraverse = useHistory(historyIndex, history, setHistoryIndex, setAnecdotesSorted)
   
   const handleVote = (anecdote) => {
@@ -48,12 +44,6 @@ const AnecdoteList = ({ history, setHistory, historyIndex, setHistoryIndex }) =>
       delete timeoutsRef.current[anecdote.id]; // dont know if need this cleanup but maybe?
     }, 1000)
   }
-  
-  useEffect(() => {
-    oldPositions.current = calculatePositions(anecdotesSorted, itemRefs) // set starting positions
-    sortingTimerId.current = setTimeout(() => setAnecdotesSorted([...filteredAnecdotes].sort((a, b) => b.votes - a.votes)), 1200) // delay the sorting
-    return () => clearTimeout(sortingTimerId.current)
-  }, [filteredAnecdotes])
 
   useLayoutEffect(() => {
     if (anecdotesSorted.length === 0) return // need anecdotesSorted for this
@@ -76,7 +66,7 @@ const AnecdoteList = ({ history, setHistory, historyIndex, setHistoryIndex }) =>
       const oldTop = oldPositions.current[a.id]
       const newTop = newPositions[a.id]
 
-      if (oldTop !== undefined && Math.abs(oldTop - newTop) > 30) { // 30px to compensate for height differences between elements(probably fixed this so nvm)
+      if (oldTop !== undefined && Math.abs(oldTop - newTop) > 30) { // 30px to compensate for height differences between elements
         const delta = oldTop - newTop // how much the element moved in the y axis
         
         el.style.transition = 'background-color 0.6s cubic-bezier(.25,.75,.57,.96)' // remove inline transform transition so element snap into old position
@@ -152,15 +142,3 @@ function setTempBackground(bgTimersRef, el, id, color, revertColor, delay) {
     delete bgTimersRef.current[id] // Clean up
   }, delay)
 };
-
-function calculatePositions(anecdotes, itemRefs) {
-  const positions = {}
-  anecdotes.forEach(a => { // count old positions before sorting for animation
-    const domNode = itemRefs.current[a.id]
-    if (domNode) {
-      const rect = domNode.getBoundingClientRect()
-      positions[a.id] = rect.top + window.scrollY
-    }
-  })
-  return positions
-}

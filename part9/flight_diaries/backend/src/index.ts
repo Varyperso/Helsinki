@@ -1,19 +1,16 @@
 import express from 'express';
 import cors from 'cors';
-import diariesRouter from './routes/diaries'
 
 const app = express();
+
+import diaryRouter from './routes/diaries';
+
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173'}));
 
 const PORT = 3001;
 
-app.get('/api/ping', (_req, res) => {
-  console.log('someone pinged here');
-  res.send('pong');
-});
-
-app.use('/api', diariesRouter)
+app.use('/api/diaries', diaryRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

@@ -22,7 +22,7 @@ const StyledButton = styled.button`
   }
 `;
 
-function Button({ children, isLoading, variant = 'primary', ...rest }) {
+export default function Button({ children, isLoading, variant = 'primary', ...rest }) {
   return (
     <StyledButton $variant={variant} disabled={isLoading || rest.disabled} {...rest}>
       {isLoading ? 'Loading…' : children}
@@ -31,4 +31,3 @@ function Button({ children, isLoading, variant = 'primary', ...rest }) {
 }
 
 export { StyledButton };
-export default Button;

@@ -18,8 +18,8 @@ const Wrapper = styled.div`
     opacity: 0.5;
 
     background: ${({ $spinner }) => $spinner
-    ? `conic-gradient(from var(--angle) at center, oklch(0.48 0.12 275), oklch(0.48 0.12 250), oklch(0.56 0.22 145), oklch(0.48 0.12 275))`
-    : `conic-gradient(rgb(0, 101, 169), rgb(144, 0, 255), rgb(0, 101, 169))`
+      ? `conic-gradient(from var(--angle) at center, oklch(0.48 0.12 275), oklch(0.48 0.12 250), oklch(0.56 0.22 145), oklch(0.48 0.12 275))`
+      : `conic-gradient(rgb(0, 101, 169), rgb(144, 0, 255), rgb(0, 101, 169))`
     };
     animation: spinAngle 5s linear infinite;
   }

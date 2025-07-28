@@ -6,7 +6,6 @@ import Notification from './components/Notification'
 import { useEffect, useState } from 'react'
 import { initializeAnecdotes } from './reducers/anecdoteSlice'
 
-
 const App = () => {
   const dispatch = useDispatch()
   

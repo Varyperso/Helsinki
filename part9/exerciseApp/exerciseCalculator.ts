@@ -15,11 +15,15 @@ interface ICalculator {
   average: number
 }
 
-function parseArguments2(args: string[]): CalculatorArgs {
+function isNumberArray(arr: unknown): arr is number[] {
+  return Array.isArray(arr) && arr.every(n => typeof n === 'number' && !Number.isNaN(n));
+}
+
+function parseArguments(args: string[]): CalculatorArgs {
   try {
     const parsed: unknown = JSON.parse(args[2]);
-    if (!Array.isArray(parsed) || !parsed.every((n: unknown) => isValidNumber(n) && n >= 0)) throw new Error('argument must be an array of positive numbers');
-    const hoursArr = parsed as number[];
+    if (!isNumberArray(parsed)) throw new Error('argument must be an array of positive numbers');
+    const hoursArr = parsed; // at this point TypeScript knows `parsed` is `number[]` because of "arr is number[]"
 
     const hoursPerDay = Number(args[3]);
     if (Number.isNaN(hoursPerDay)) throw new Error('second argument must be a number');
@@ -69,7 +73,7 @@ export default function exerciseCalculator(hoursArr: number[], hoursPerDay: numb
       ratingDescription = 'wow, almost there.';
       break;
     }
-    case average >= hoursPerDay && average < hoursPerDay * 1.25: {
+    case average >= hoursPerDay / 1.5 && average < hoursPerDay * 1.25: {
       rating = 4;
       ratingDescription = 'i am so proud.';
       break;
@@ -93,7 +97,7 @@ export default function exerciseCalculator(hoursArr: number[], hoursPerDay: numb
 
 if (require.main === module) {
   try {
-    const { hoursArr, hoursPerDay }: CalculatorArgs = parseArguments2(process.argv);
+    const { hoursArr, hoursPerDay }: CalculatorArgs = parseArguments(process.argv);
     const result: ICalculator = exerciseCalculator(hoursArr, hoursPerDay);
     console.info(result);
   }

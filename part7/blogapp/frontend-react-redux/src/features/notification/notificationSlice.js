@@ -1,7 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-let timeoutId = null
-
 const notificationSlice = createSlice({
   name: 'notification',
   initialState: null,

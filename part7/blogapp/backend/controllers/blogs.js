@@ -36,9 +36,9 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (req, res, next) => {
     if (!deletedBlog) return res.status(404).json({ error: 'blog not found' })
     if (deletedBlog.user.toString() !== req.user._id.toString()) return res.status(401).json({ error: 'Only the creator can delete this blog' })
     await Blog.findByIdAndDelete(id)
-    req.user.blogs = req.user.blogs.filter(blog => blog.toString() !== id)
+    req.user.blogs = req.user.blogs.filter(blog => blog.toString() !== id) // blog is the id string
     await req.user.save()
-    res.status(200).json({ blogId: id, userId: req.user.id })
+    res.status(200).json({ blogId: id, userId: req.user.id }) // req.user.id === req.user._id.toString()
   }
   catch (err) {
     next(err)
