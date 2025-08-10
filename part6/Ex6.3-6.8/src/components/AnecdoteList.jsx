@@ -8,18 +8,19 @@ const AnecdoteList = ({ history, setHistory, historyIndex, setHistoryIndex }) =>
   const dispatch = useDispatch()
   const anecdotes = useSelector(state => state.anecdotes)
   const filter = useSelector(state => state.anecdotesFilter)
-  const filteredAnecdotes = useMemo(() => anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase())), [anecdotes, filter])
-
+  const filteredAnecdotes = useMemo(() => {
+    return anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase())), [anecdotes, filter]
+  })
   const [, forceRender] = useState(0); // re-render to delete the "✓ Voted!" at the end of voting(since its using useRef)
   const updatedIds = useRef([]) // recently updated anecdotes temporary change color up until the sorting happens(via the setTimeout)
   const timeoutsRef = useRef({}); // remove the updatedIds after the sorting is over
   const bgTimers = useRef({}); // background color timers
-
   const { anecdotesSorted, setAnecdotesSorted, oldPositions, itemRefs } = useCalculatePositions(filteredAnecdotes)
+
   const onHistoryTraverse = useHistory(historyIndex, history, setHistoryIndex, setAnecdotesSorted)
   
   const handleVote = (anecdote) => {
-    if (historyIndex !== history.length - 1) onHistoryTraverse('>>') // if currently going through history, go back to current time
+    if (historyIndex !== history.length - 1) onHistoryTraverse('>>') // go back to current time
     dispatch(addVote(anecdote))
     updatedIds.current.push(anecdote.id) // push the voted upon anecdote id to the updatedIds array
     clearTimeout(timeoutsRef.current[anecdote.id]); // clear if this is the 2'nd+ vote in a row (1800ms haven't passed)
@@ -28,11 +29,17 @@ const AnecdoteList = ({ history, setHistory, historyIndex, setHistoryIndex }) =>
       delete timeoutsRef.current[anecdote.id]; // Clean up
       forceRender(prev => prev + 1) // re-render
     }, 1800);
-    setTempBackground(bgTimers, itemRefs.current[anecdote.id], anecdote.id, itemRefs.current[anecdote.id].style.backgroundColor, 'rgb(12, 50, 3)', 0)
+    setTempBackground(
+      bgTimers, 
+      itemRefs.current[anecdote.id], 
+      anecdote.id, 
+      itemRefs.current[anecdote.id].style.backgroundColor, 
+      'rgb(12, 50, 3)', 0
+    )
   }
 
   const handleDeleteAnecdote = (anecdote) => {
-    if (historyIndex !== history.length - 1) onHistoryTraverse('>>') // if currently going through history, go back to current time
+    if (historyIndex !== history.length - 1) onHistoryTraverse('>>') // go back to current time
     const el = itemRefs.current[anecdote.id]
     el.style.transition = 'opacity 1s ease'
     el.style.opacity = '0'
@@ -105,7 +112,8 @@ const AnecdoteList = ({ history, setHistory, historyIndex, setHistoryIndex }) =>
       {history.length > 1 && <span>{historyIndex} / {history.length - 1}</span>}
       {anecdotesSorted.map((anecdote, idx) => {
         const wasUpdatedId = updatedIds.current.find((id) => id === anecdote.id) // get anecdote id if it was recently voted on
-        const valueDifference = wasUpdatedId && filteredAnecdotes.reduce((x, y) => y.id === wasUpdatedId ? y.votes : x, null) - anecdote.votes
+        const valueDifference = wasUpdatedId && 
+          filteredAnecdotes.reduce((x, y) => y.id === wasUpdatedId ? y.votes : x, null) - anecdote.votes
         const ogAnecdote = filteredAnecdotes.find(a => a.id === anecdote.id) // to vote with the fresh updated votes(instead of the sorted delayed votes)
         const existsNow = history.length && history[history.length - 1].find(a => a.id === anecdote.id) // not deleted
         const swapHistory = history.reduce((result, entry, index) => {

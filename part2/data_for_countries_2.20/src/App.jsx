@@ -15,16 +15,16 @@ const App = () => {
     }
   }, [search]);
 
-  const handleChange = (event) => {
-    setValue(event.target.value);
+  const handleChange = e => {
+    setValue(e.target.value);
   };
 
-  const onSearch = (event) => {
-    event.preventDefault();
+  const onSearch = e => {
+    e.preventDefault();
     setSearch(value);
   };
 
-  let filt = countries?.filter((country) => country.name.common.toLowerCase().includes(value.toLowerCase()));
+  let filteredCountries = countries?.filter((country) => country.name.common.toLowerCase().includes(value.toLowerCase()));
 
   return (
     <div>
@@ -32,7 +32,7 @@ const App = () => {
         search country: <input value={value} onChange={handleChange} />
         <button type="submit">country list</button>
       </form>
-      <Countries countriesArr={filt} />
+      <Countries countriesArr={filteredCountries} />
     </div>
   );
 };

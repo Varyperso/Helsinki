@@ -16,7 +16,6 @@ const tokenExtractor = (req, res, next) => {
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     req.token = authorization.substring(7) // remove 'Bearer ' from the token
   } else req.token = null
-
   next()
 }
 
@@ -46,11 +45,26 @@ const userExtractor = async (req, res, next) => {
   }
 }
 
+const adminOnly = (req, res, next) => {
+  try {
+    if (!req.user || !req.user.isAdmin) {
+      const err = new Error('Admin access required');
+      err.name = 'Forbidden';
+      res.status(403);
+      throw err;
+    }
+
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
 const errorHandler = (error, req, res, next) => {
   logger.error(error)
-  if (error.name === 'CastError') { // mongoose cast error (invalid id format given to findById())
+  if (error.name === 'CastError') { // mongoose error - invalid id format given to findById()
       return res.status(400).send({ error: 'Error - malformatted id' })
-  } else if (error.name === 'ValidationError') { // mongoose schema validation error (values posted weren't valid according to the schema)
+  } else if (error.name === 'ValidationError') { // mongoose schema error - values posted weren't valid according to the schema
       return res.status(400).json({ error: `Error - ${error.message}` })
   } else if (error.name ===  'JsonWebTokenError') {
     return res.status(401).json({ error: error.message })
@@ -64,8 +78,9 @@ const errorHandler = (error, req, res, next) => {
       return res.status(409).json({
       error: `Error - The ${field} '${value}' already exists`
     })
+  } else if (error.name === 'Forbidden') {
+    res.status(403).json({ error: error.message }) // trying to access admin routes
   }
-  
   else return res.status(500).json({ error: 'Error - Internal server error' })
   // next(error)
 }
@@ -74,10 +89,4 @@ const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: 'Error - unknown endpoint' })
 }
 
-module.exports = {
-  requestLogger,
-  unknownEndpoint,
-  errorHandler,
-  tokenExtractor, 
-  userExtractor,
-}
+module.exports = { requestLogger, unknownEndpoint, errorHandler, tokenExtractor,  userExtractor, adminOnly }

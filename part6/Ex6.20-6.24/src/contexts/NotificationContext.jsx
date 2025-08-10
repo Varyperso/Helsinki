@@ -19,7 +19,7 @@ const NotificationContextProvider = ({ children }) => {
     clearTimeout(notificationTimerRef.current)
     notificationTimerRef.current = setTimeout(() => dispatch({ type: 'CLEAR_NOTIFICATION' }), duration)
   }
-  return <NotificationContext.Provider value={ [notification, setNotification] }>{ children }</NotificationContext.Provider>
+  return <NotificationContext.Provider value={[notification, setNotification]}>{ children }</NotificationContext.Provider>
 }
 
 export default NotificationContextProvider

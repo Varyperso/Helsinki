@@ -3,12 +3,7 @@ import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
 test('onAddLike is called on increasing the likes counter + called multiple times', async () => {
-  const blog = {
-    title: 'make not important',
-    author: "me",
-    url: "yes",
-    likes: 7
-  }
+  const blog = { title: 'make not important', author: "me", url: "yes", likes: 7 }
 
   const mockHandler = vi.fn()
 
@@ -29,12 +24,7 @@ test('onAddLike is called on increasing the likes counter + called multiple time
 })
 
 test('renders title and author but not likes and url(they are hidden by default)', async () => {
-  const blog = {
-    title: 'test blog1',
-    author: "me1",
-    url: "http://yes1",
-    likes: 776
-  }
+  const blog = { title: 'test blog1', author: "me1", url: "http://yes1", likes: 776 }
 
   render(<Blog blog={blog} />)
   const titleAndAuthorElement = await screen.findByText('test blog1 by me1')
@@ -46,7 +36,7 @@ test('renders title and author but not likes and url(they are hidden by default)
 
   const likesElement = await screen.findByText('Likes: 776')
   expect(likesElement).toBeVisible()
-  const URLElement = await screen.findByText('http://yes1')
+  const URLElement = await screen.findByText('yes1')
   expect(URLElement).toBeVisible()
 
   await user.click(showMoreButton) // hide the likes and the url(removed from the dom via conditional rendering)

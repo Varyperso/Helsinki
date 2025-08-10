@@ -14,4 +14,9 @@ export const createAnecdote = async (newAnecdote) => {
   }
 }
 
-export const updateAnecdote = updatedAnecdote => axios.put(`${baseUrl}/${updatedAnecdote.id}`, updatedAnecdote).then(res => res.data)
+export const updateAnecdote = updatedAnecdote => axios.put(`${baseUrl}/${updatedAnecdote.id}`, updatedAnecdote)
+  .then(res => res.data)
+  .catch(err => {
+    const serverMessage = err.response?.data?.error || 'Unknown error'
+    throw new Error(serverMessage)
+  })

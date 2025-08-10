@@ -24,6 +24,7 @@
     "typescript-eslint": "^8.36.0"
   },
   "dependencies": {
+    "@shared/types": "link:..\\shared",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "uuid": "^11.1.0",

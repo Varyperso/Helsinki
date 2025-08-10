@@ -15,7 +15,7 @@ const AnecdoteForm = ({ history, setHistoryIndex}) => {
   
   return (
     <>
-     <h2>create new</h2>
+      <h2>create new</h2>
       <form onSubmit={handleSubmit}>
         <input name="newAnecdote" /> {" "}
         <button>create</button>

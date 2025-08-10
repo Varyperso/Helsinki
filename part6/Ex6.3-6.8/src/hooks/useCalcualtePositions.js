@@ -15,7 +15,7 @@ function calculatePositions(anecdotes, itemRefs) {
 export default function useCalculatePositions(filteredAnecdotes) {
   const [anecdotesSorted, setAnecdotesSorted] = useState([]) // delay the sorting so it wont look immediate(for demonstration purposes)
 
-  const oldPositions = useRef({}) // save the positions of the anecdotes right after pressing "vote"
+  const oldPositions = useRef({}) // save the positions on screen of the anecdotes right after pressing "vote"
   const sortingTimerId = useRef(null) // clear the timers when user clicks vote(debounce sorting)
   const itemRefs = useRef({}) // animate between the before and after sorting positions(if there was a swap/add/delete)
 

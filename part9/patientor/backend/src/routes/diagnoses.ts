@@ -1,5 +1,5 @@
 import express, { Response } from 'express';
-import { DiagnosesEntry } from '../patientTypes';
+import { DiagnosesEntry } from '../../../shared/patientTypes';
 import diagnosesService from '../services/diagnosesService';
 
 const router = express.Router();

@@ -1,4 +1,4 @@
-import { DiagnosesEntry } from "../src/patientTypes";
+import { DiagnosesEntry } from "../../shared/patientTypes";
 import { newDiagnosesSchema } from "../src/patientUtils";
 
 const data: DiagnosesEntry[] = [

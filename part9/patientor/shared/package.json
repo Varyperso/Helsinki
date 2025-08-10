@@ -1,0 +1,9 @@
+{
+  "name": "@shared/types",
+  "version": "1.0.0",
+  "main": "schemas.ts",
+  "types": "schemas.ts",
+  "dependencies": {
+    "zod": "^4.0.5"
+  }
+}

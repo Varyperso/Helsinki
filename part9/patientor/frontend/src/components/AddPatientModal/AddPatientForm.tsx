@@ -75,44 +75,17 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
         />
 
         <InputLabel style={{ marginTop: 20 }}>Gender</InputLabel>
-        <Select
-          label="Gender"
-          fullWidth
-          value={gender}
-          onChange={onGenderChange}
-        >
-        {genderOptions.map(option =>
-          <MenuItem
-            key={option.label}
-            value={option.value}
-          >
-            {option.label
-          }</MenuItem>
-        )}
+        
+        <Select label="Gender" fullWidth value={gender} onChange={onGenderChange}>
+        {genderOptions.map(option => <MenuItem key={option.label} value={option.value}>{option.label}</MenuItem>)}
         </Select>
 
         <Grid>
           <Grid>
-            <Button
-              color="secondary"
-              variant="contained"
-              style={{ float: "left" }}
-              type="button"
-              onClick={onCancel}
-            >
-              Cancel
-            </Button>
+            <Button color="secondary" variant="contained" style={{ float: "left" }} type="button" onClick={onCancel}>Cancel</Button>
           </Grid>
           <Grid>
-            <Button
-              style={{
-                float: "right",
-              }}
-              type="submit"
-              variant="contained"
-            >
-              Add
-            </Button>
+            <Button style={{ float: "right" }} type="submit" variant="contained">Add</Button>
           </Grid>
         </Grid>
       </form>

@@ -1,5 +1,6 @@
-import diagnosesData from "../../data/diagnosesEntries";
+import diagnosesEntries from "../../data/diagnosesEntries";
 
-const getDiagnosesEntries = () => diagnosesData;
+const getDiagnosesEntries = () => diagnosesEntries;
+const getAllPossibleCodes = () => getDiagnosesEntries().map(d => d.code)
 
-export default { getDiagnosesEntries };
+export default { getDiagnosesEntries, getAllPossibleCodes };

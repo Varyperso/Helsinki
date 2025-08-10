@@ -1,5 +1,4 @@
 const useHistory = (historyIndex, history, historyIndexSetter, setNewState) => {
-
   return (whereTo) => {
     let newIndex = historyIndex
     if (whereTo === '>') newIndex++

@@ -7,13 +7,13 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3001', // Your backend URL
-        changeOrigin: true, // To ensure the target server sees the correct Origin header
+        target: 'http://localhost:3000', // Your backend URL
+        changeOrigin: true, // if true, Vite will rewrite the Origin header to match the target URL.
         secure: false, // Use this if your backend is not using HTTPS (only for development)
       },
     },
   },
-  test: {
+  test: { // cand elete this if not writing tests
     environment: 'jsdom',
     globals: true,
     setupFiles: './testSetup.js',

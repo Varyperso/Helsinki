@@ -1,29 +1,9 @@
-const initialState = {
-  good: 0,
-  ok: 0,
-  bad: 0
-}
+const initialState = { good: 0, ok: 0, bad: 0 }
 
-export const good = () => {
-  return {
-    type: 'GOOD'
-  }
-}
-export const ok = () => {
-  return {
-    type: 'OK'
-  }
-}
-export const bad = () => {
-  return {
-    type: 'BAD'
-  }
-}
-export const zero = () => {
-  return {
-    type: 'ZERO'
-  }
-}
+export const good = () => ({ type: 'GOOD' })
+export const ok = () => ({ type: 'OK' })
+export const bad = () => ({ type: 'BAD' })
+export const zero = () => ({ type: 'ZERO' })
 
 const counterReducer = (state = initialState, action) => {
   switch (action.type) {

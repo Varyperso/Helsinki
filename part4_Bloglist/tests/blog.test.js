@@ -15,7 +15,9 @@ before(async () => {
   token = response.body.token
 
   await Blog.deleteMany({}) // delete all blogs
-  const testUser = await User.findById("682098bc81eb00643330ddd3")
+  const testUser = await User.findById("6851d3d831a19e6f986d6534")
+  console.log("testuser from before", testUser);
+  
   testUser.blogs = [] // delete all blogs in users blogs array
   await testUser.save()
 
@@ -25,7 +27,7 @@ before(async () => {
 })
 
 test('blogs are returned as json', async () => {
-  const blogs = await api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/) // regex because if we use string it is also followed by "charset=utf8" and gets messy
+  const blogs = await api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/) // regex 
   assert.strictEqual(blogs.body.length, helper.listWithManyBlogs.length)
 })
 

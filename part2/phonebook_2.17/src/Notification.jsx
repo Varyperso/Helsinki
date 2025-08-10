@@ -19,17 +19,13 @@ const errorStyle = {
 };
 
 const Notification = ({ message }) => {
-  let msg;
-  if (message === null) {
-    return null;
-  }
-  if (message.includes("error")) msg = errorStyle;
-  else msg = addStyle;
+  let msgStyle;
 
-  return (
-    <div style={msg} className="error">
-      {message}
-    </div>
-  );
+  if (message === null) return null;
+  else if (message.includes("error")) msgStyle = errorStyle;
+  else msgStyle = addStyle;
+
+  return <div style={msgStyle}>{message}</div>
 };
+
 export default Notification;

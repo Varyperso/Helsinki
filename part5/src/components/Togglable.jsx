@@ -9,7 +9,7 @@ const Togglable = ({ ref, children, buttonLabel }) => {
   useImperativeHandle(ref, () => ({ toggleVisibility }))
 
   return (
-    <div>
+    <div style={{ marginTop: '0.5rem' }}>
       <div style={{ display: visible ? 'none' : '' }}>
         <button onClick={toggleVisibility}>{buttonLabel}</button>
       </div>

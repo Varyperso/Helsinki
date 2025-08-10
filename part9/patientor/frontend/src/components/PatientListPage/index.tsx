@@ -8,6 +8,7 @@ import AddPatientModal from "../AddPatientModal";
 import HealthRatingBar from "../HealthRatingBar";
 
 import patientService from "../../services/patients";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   patients : Patient[]
@@ -15,9 +16,10 @@ interface Props {
 }
 
 const PatientListPage = ({ patients, setPatients } : Props ) => {
-
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<string>();
+
+  const navigate = useNavigate()
 
   const openModal = (): void => setModalOpen(true);
 
@@ -25,7 +27,7 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
     setModalOpen(false);
     setError(undefined);
   };
-
+  
   const submitNewPatient = async (values: PatientFormValues) => {
     try {
       const patient = await patientService.create(values);
@@ -37,7 +39,7 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
         console.error(errDataObj)
         setError(errDataObj.message)
       }
-      else setError("unknown error")
+      else setError("unknown error occured")
     }
   }
   return (
@@ -58,13 +60,11 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
         </TableHead>
         <TableBody>
           {Object.values(patients).map((patient: Patient) => (
-            <TableRow key={patient.id}>
+            <TableRow key={patient.id} hover style={{ cursor: 'pointer' }} onClick={() => navigate(`/patient/${patient.id}`)} >
               <TableCell>{patient.name}</TableCell>
               <TableCell>{patient.gender}</TableCell>
               <TableCell>{patient.occupation}</TableCell>
-              <TableCell>
-                <HealthRatingBar showText={false} rating={1} />
-              </TableCell>
+              <TableCell> <HealthRatingBar showText={false} rating={1} /> </TableCell>
             </TableRow>
           ))}
         </TableBody>

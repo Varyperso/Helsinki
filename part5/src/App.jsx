@@ -16,11 +16,7 @@ const App = () => {
   const blogFormRef = useRef()
 
   useEffect(() => {
-    const getBlogs = async () => {
-      const fetchedBlogs = await blogService.getAll()
-      setBlogs(fetchedBlogs)
-    }
-    getBlogs()
+    blogService.getAll().then(setBlogs)
   }, [])
 
   useEffect(() => {
@@ -74,9 +70,9 @@ const App = () => {
   const handleDeleteBlog = async (blogId) => {
     window.confirm(`are you sure you want to delete blog ${blogId} ?`)
     try {
-      const DeletedBlog = await blogService.deleteBlog(blogId)
+      await blogService.deleteBlog(blogId)
       setBlogs(prevBlogs => prevBlogs.filter(blog => blog.id !== blogId))
-      setMessage('Blog Deleted')
+      setMessage(`Blog id ${blogId} Deleted`)
       setTimeout(() => setMessage(null), 3000)
     }
     catch (e) {
@@ -91,11 +87,11 @@ const App = () => {
     <div>
       <h1>Blogs</h1>
 
-      <Notification> {message} </Notification>
+      <Notification>{message}</Notification>
 
       {user ? 
         <>
-          <span>hi {user.name}</span>
+          <h2>hi {user.username}</h2>
           <button onClick={() => logout(setUser)}> logout </button>
           <Togglable buttonLabel="new blog" ref={blogFormRef} >
             <BlogForm onAddBlog={handleAddBlog} />
@@ -105,8 +101,8 @@ const App = () => {
         <LoginForm onLogin={handleLogin} />
       }
 
-      <ul>
-        {sortedBlogs && sortedBlogs.map(blog =>
+      <ul style={{ listStyle: 'none', minWidth: '16rem'}}>
+        {sortedBlogs?.map(blog =>
           <Blog key={blog.id} blog={blog} user={user} onAddLike={handleAddLike} onDeleteBlog={handleDeleteBlog} />
         )}
       </ul>
